@@ -1,0 +1,10 @@
+{
+    "name": "Suspension.Solver",
+    "rootNamespace": "Suspension.Solver",
+    "references": [
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Mathematics"
+    ],
+    "autoReferenced": true
+}

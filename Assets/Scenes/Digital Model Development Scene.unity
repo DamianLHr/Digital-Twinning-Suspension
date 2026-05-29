@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &308208525 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1220561696841072128, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+  m_PrefabInstance: {fileID: 3227758669272622158}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fac6090972d24d93670f89ea6d46f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.ToFSensorOutput
 --- !u!1 &652646031
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,6 +267,52 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &837503069
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 837503071}
+  - component: {fileID: 837503070}
+  m_Layer: 0
+  m_Name: Orchestrator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &837503070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 837503069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ea142b4bab0ff345b45cdc465580518, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.DampingActuator
+  currentC: 0
+--- !u!4 &837503071
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 837503069}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.71711, y: 1.9921, z: 8.13}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1942129323}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1101558073
 GameObject:
   m_ObjectHideFlags: 0
@@ -527,6 +584,164 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1942129322
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1942129323}
+  - component: {fileID: 1942129324}
+  - component: {fileID: 1942129325}
+  m_Layer: 0
+  m_Name: BumpPipeline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1942129323
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942129322}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 837503071}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1942129324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942129322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c968074777768ba4480c43754e81dd53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.BumpPipeline
+  tof: {fileID: 308208525}
+  terrain: {fileID: 7817670616621169020}
+  actuator: {fileID: 837503070}
+  nominalStandoff: 1.028
+  sensorLead: 0.1
+  triggerHeight: 0.005
+  endSamples: 5
+  preRollSamples: 32
+  maxProfileSamples: 1024
+  minBumpSamples: 4
+  cooldownSamples: 16
+  mass: 5
+  stiffness: 20000
+  cMin: 50
+  cMax: 3000
+  cCandidates: 256
+  solverSteps: 1500
+  solverDt: 0.001
+  CurrentState: 1
+  bumpsSeen: 0
+  lastSolveMs: 0
+  lastBestC: 0
+  lastPredictiveSlackMs: 0
+  OnBumpCaptured:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSolveCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1942129325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942129322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8b6ec4c047640b4caabf763dceb44f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.BumpPipelineVisualizer
+  pipeline: {fileID: 1942129324}
+  show: 1
+  anchor: {x: 12, y: 12}
+  plotWidth: 280
+  plotHeight: 110
+  toggleKey: 283
+  bgColor: {r: 0, g: 0, b: 0, a: 0.65}
+  gridColor: {r: 1, g: 1, b: 1, a: 0.18}
+  bumpColor: {r: 0.4, g: 0.85, b: 1, a: 1}
+  costColor: {r: 1, g: 0.75, b: 0.3, a: 1}
+  markerColor: {r: 0.4, g: 1, b: 0.5, a: 1}
+--- !u!1001 &3227758669272622158
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3946936949635396167, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: samplingRate
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6191294320038671012, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_Name
+      value: ToFSensor
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.279
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.884
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7177274873879042449, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
 --- !u!1001 &7817670616621169017
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -582,8 +797,60 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 808917221856339082, guid: 4cd1b1d1c25f1df489c553f5c0411ff0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7817670616621169019}
+    - targetCorrespondingSourceObject: {fileID: 808917221856339082, guid: 4cd1b1d1c25f1df489c553f5c0411ff0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7817670616621169020}
   m_SourcePrefab: {fileID: 100100000, guid: 4cd1b1d1c25f1df489c553f5c0411ff0, type: 3}
+--- !u!1 &7817670616621169018 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 808917221856339082, guid: 4cd1b1d1c25f1df489c553f5c0411ff0, type: 3}
+  m_PrefabInstance: {fileID: 7817670616621169017}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &7817670616621169019
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7817670616621169018}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &7817670616621169020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7817670616621169018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3471da2dda46f254285c6213d88be7ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Suspension.Model.TerrainWheel
+  linearSpeed: 0.2
+  diameter: 0.2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -593,3 +860,5 @@ SceneRoots:
   - {fileID: 1101558077}
   - {fileID: 1326741843}
   - {fileID: 7817670616621169017}
+  - {fileID: 3227758669272622158}
+  - {fileID: 837503071}
