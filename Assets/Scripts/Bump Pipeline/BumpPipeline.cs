@@ -22,11 +22,12 @@ public class BumpPipeline : MonoBehaviour
     [Header("Sources")]
     [SerializeField] private ToFSensorOutput tof;
     [SerializeField] private TerrainWheel terrain;
-    [SerializeField] private DampingActuator actuator;
 
     [Header("Geometry")]
     [SerializeField] private float nominalStandoff = 0.15f;
     [SerializeField] private float sensorLead = 0.10f;
+
+    public float NominalStandoff => nominalStandoff;
 
     [Header("Detection")]
     [Tooltip("Deviation from flat (m) that starts a capture. Magnitude-based, so " +
@@ -293,7 +294,6 @@ public class BumpPipeline : MonoBehaviour
         }
 
         lastBestC = _inFlight.Results[bestIdx].dampingC;
-        //if (actuator != null) actuator.SetDamping(lastBestC);
 
         float vBelt = Mathf.Max(0.01f, terrain != null ? terrain.LinearSpeed : 1f);
         float distLeft = sensorLead - _inFlight.BumpLengthMeters;

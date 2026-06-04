@@ -19,9 +19,9 @@ public class DampingCommandScheduler : MonoBehaviour
     public enum CalibState { WaitingForObservation, WaitingForJolt, Calibrated }
 
     [Header("Wiring")]
-    [SerializeField] private BumpPipeline        pipeline;
-    [SerializeField] private DampingActuator     actuator;
-    [SerializeField] private TerrainWheel        terrain;
+    [SerializeField] private BumpPipeline pipeline;
+    [SerializeField] private DampingCommand dampingCommand;
+    [SerializeField] private TerrainWheel terrain;
     [SerializeField] private AccelerometerOutput accel;
 
     [Header("Calibration")]
@@ -37,12 +37,12 @@ public class DampingCommandScheduler : MonoBehaviour
     [Header("Diagnostics (read-only)")]
     public CalibState State = CalibState.WaitingForObservation;
     [SerializeField] private float wheelOffset;        // measured / manual
-    [SerializeField] private int   queueDepth;
+    [SerializeField] private int queueDepth;
     [SerializeField] private float lastAppliedC;
     [SerializeField] private float lastAppliedAtPos;
 
     public float WheelOffset => wheelOffset;
-    public int   QueueDepth  => queueDepth;
+    public int QueueDepth => queueDepth;
 
     // Pending commands. A simple list used as a FIFO; six bumps means ~6 entries
     // at peak, so List<> with linear remove is fine — no need for a real queue.
@@ -55,24 +55,24 @@ public class DampingCommandScheduler : MonoBehaviour
 
     // Calibration state
     private float _firstObservationPos;
-    private bool  _firstObservationCaptured;
+    private bool _firstObservationCaptured;
 
     private void OnEnable()
     {
         if (pipeline != null) pipeline.OnSolveCompleted.AddListener(OnSolveCompleted);
-        if (accel    != null) accel.OnAcceleration.AddListener(OnAcceleration);
+        if (accel != null) accel.OnAcceleration.AddListener(OnAcceleration);
 
         if (manualWheelOffset > 0f)
         {
             wheelOffset = manualWheelOffset;
-            State       = CalibState.Calibrated;
+            State = CalibState.Calibrated;
         }
     }
 
     private void OnDisable()
     {
         if (pipeline != null) pipeline.OnSolveCompleted.RemoveListener(OnSolveCompleted);
-        if (accel    != null) accel.OnAcceleration.RemoveListener(OnAcceleration);
+        if (accel != null) accel.OnAcceleration.RemoveListener(OnAcceleration);
     }
 
     // --- event handlers --------------------------------------------------
@@ -89,9 +89,9 @@ public class DampingCommandScheduler : MonoBehaviour
 
         if (State == CalibState.WaitingForObservation && !_firstObservationCaptured)
         {
-            _firstObservationPos      = observedAt;
+            _firstObservationPos = observedAt;
             _firstObservationCaptured = true;
-            State                     = CalibState.WaitingForJolt;
+            State = CalibState.WaitingForJolt;
             Debug.Log($"[Scheduler] first observation at belt pos {observedAt:F3} m, " +
                       $"awaiting jolt to calibrate offset.");
             // We deliberately drop this command — the wheel will hit the bump
@@ -106,7 +106,7 @@ public class DampingCommandScheduler : MonoBehaviour
         _pending.Add(new PendingCommand
         {
             TargetPos = observedAt + wheelOffset,
-            C         = snap.BestC
+            C = snap.BestC
         });
         queueDepth = _pending.Count;
     }
@@ -119,9 +119,9 @@ public class DampingCommandScheduler : MonoBehaviour
         if (aMag < joltThreshold) return;
 
         float joltAt = terrain != null ? terrain.TraveledDistance : 0f;
-        wheelOffset  = joltAt - _firstObservationPos;
-        State        = CalibState.Calibrated;
-        Debug.Log($"[Scheduler] calibrated: wheelOffset = {wheelOffset*1000f:F1} mm " +
+        wheelOffset = joltAt - _firstObservationPos;
+        State = CalibState.Calibrated;
+        Debug.Log($"[Scheduler] calibrated: wheelOffset = {wheelOffset * 1000f:F1} mm " +
                   $"(jolt at {joltAt:F3}, observation was at {_firstObservationPos:F3})");
     }
 
@@ -140,9 +140,9 @@ public class DampingCommandScheduler : MonoBehaviour
         for (int i = 0; i < _pending.Count; i++)
         {
             if (_pending[i].TargetPos > now) break;
-            if (actuator != null) actuator.SetDamping(_pending[i].C);
-            lastAppliedC      = _pending[i].C;
-            lastAppliedAtPos  = now;
+            if (dampingCommand != null) dampingCommand.Publish(_pending[i].C);
+            lastAppliedC = _pending[i].C;
+            lastAppliedAtPos = now;
             popped++;
         }
         if (popped > 0)

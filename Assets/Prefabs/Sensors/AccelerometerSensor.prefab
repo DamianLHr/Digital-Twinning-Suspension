@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2258624716562016859
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5046566858940502352}
+  - component: {fileID: 8975625221735388185}
+  - component: {fileID: 4360113606112864284}
+  - component: {fileID: 487396847347666793}
+  m_Layer: 0
+  m_Name: AccelerometerSensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5046566858940502352
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2258624716562016859}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0.7071068, w: 0}
+  m_LocalPosition: {x: -113.60004, y: 103.900024, z: -53.299976}
+  m_LocalScale: {x: 60, y: 59.99999, z: 59.99999}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 180}
+--- !u!114 &8975625221735388185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2258624716562016859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbdbcf6dfea4c3d469d1aa91bb84b582, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.DigitalIMU
+  sensorId: acceld
+  samplingRate: 200
+  output: {fileID: 0}
+  updatePeriod: 0
+  target: {fileID: 0}
+  accelOutput: {fileID: 4360113606112864284}
+--- !u!114 &4360113606112864284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2258624716562016859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 072df22e518166948a2be0c0422d86c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.AccelerometerOutput
+  isValid: 0
+  latestAccel: {x: 0, y: 0, z: 0}
+  OnAcceleration:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &487396847347666793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2258624716562016859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ed741514f4f43b4a92944cc1fbac42e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AccelerometerOutputVisualizer
+  show: 1
+  title: Accel |a|
+  units: "m/s\xB2"
+  anchor: {x: 12, y: 12}
+  plotWidth: 280
+  plotHeight: 90
+  historyLength: 256
+  toggleKey: 0
+  worldAnchorOverride: {fileID: 0}
+  floatInWorld: 1
+  bgColor: {r: 0, g: 0, b: 0, a: 0.65}
+  gridColor: {r: 1, g: 1, b: 1, a: 0.18}
+  traceColor: {r: 1, g: 0.55, b: 0.4, a: 1}
+  output: {fileID: 4360113606112864284}
