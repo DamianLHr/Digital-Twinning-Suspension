@@ -1,6 +1,6 @@
 {
     "name": "Suspension.Solver",
-    "rootNamespace": "Suspension.Solver",
+    "rootNamespace": "",
     "references": [
         "Unity.Burst",
         "Unity.Collections",
