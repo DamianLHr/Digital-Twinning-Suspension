@@ -8,19 +8,20 @@ using UnityEngine;
 ///
 /// Why not joint straight to the TerrainWheel: the belt is a kinematic drum that
 /// rotates, and a joint anchored to it would sweep the wheel around. Its centre
-/// hub is no good either — the bumps are on the rim, so the centre never moves.
+/// hub is no good either ï¿½ the bumps are on the rim, so the centre never moves.
 /// The follower tracks the road HEIGHT under the wheel without spinning, so the
 /// joint becomes a clean vertical tyre spring.
 ///
 /// PhysX solves the joint drive implicitly, so it stays stable with a stiff tyre
 /// (unlike a hand-applied force), and the two-sided drive keeps the wheel planted
-/// on the road. Disable physical collision between this wheel and the belt — the
+/// on the road. Disable physical collision between this wheel and the belt ï¿½ the
 /// raycast + joint are the contact.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class UnsprungMass : MonoBehaviour
 {
-    [SerializeField] private float mass = 0.5f;
+    [Tooltip("Unsprung mass (kg). Set centrally by QuarterCarConfig.")]
+    public float mass = 0.5f;
     [SerializeField] private Rigidbody rb;
 
     [Header("Contact raycast")]
@@ -105,6 +106,19 @@ public class UnsprungMass : MonoBehaviour
             positionDamper = tyreDamping,
             maximumForce = maxTyreForce > 0f ? maxTyreForce : float.MaxValue
         };
+    }
+
+    /// <summary>
+    /// Set the tyre spring stiffness/damping from a single source of truth
+    /// (QuarterCarConfig). Stores the values and, if the joint already exists,
+    /// applies them live. If called before Awake, the stored values are used
+    /// when the joint is created.
+    /// </summary>
+    public void SetTyreDrive(float stiffness, float damping)
+    {
+        tyreStiffness = stiffness;
+        tyreDamping   = damping;
+        if (_joint != null) ApplyDrive();
     }
 
     private void FixedUpdate()

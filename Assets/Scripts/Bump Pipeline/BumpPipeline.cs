@@ -40,10 +40,11 @@ public class BumpPipeline : MonoBehaviour
     [SerializeField] private int cooldownSamples = 16;
 
     [Header("Solver")]
-    [SerializeField] private float mass = 5.0f;
-    [SerializeField] private float stiffness = 20000f;
-    [SerializeField] private float cMin = 50f;
-    [SerializeField] private float cMax = 3000f;
+    // Public so QuarterCarConfig can set them directly (single source of truth, no reflection).
+    public float mass = 5.0f;
+    public float stiffness = 20000f;
+    public float cMin = 50f;
+    public float cMax = 3000f;
     [SerializeField] private int cCandidates = 256;
     [SerializeField] private int solverSteps = 1500;
     [SerializeField] private float solverDt = 0.001f;
@@ -78,6 +79,7 @@ public class BumpPipeline : MonoBehaviour
         public float CMin, CMax;
         public float PeakMin, PeakMax;
         public float SolveMs, SlackMs;
+        public float ObservedBeltPos;   // belt TraveledDistance at the bump's trailing edge (capture time, NO solve latency)
     }
 
     [Serializable] public class BumpEvent : UnityEvent<BumpSnapshot> { }
@@ -111,6 +113,7 @@ public class BumpPipeline : MonoBehaviour
         public RoadProfile Road;
         public float StartTime;
         public float BumpLengthMeters;
+        public float ObservedBeltPos;   // trailing-edge belt position, captured when the bump ended
     }
     private DampingSearchInFlight _inFlight;
 
@@ -131,6 +134,33 @@ public class BumpPipeline : MonoBehaviour
         if (tof != null) tof.OnDistance.RemoveListener(OnDistance);
         CompleteInFlightImmediate();
         DisposeSnapshots();
+    }
+
+    // Burst compiles a job on its first execution, which makes the FIRST real
+    // solve dramatically slower than steady state. That anomalous latency used to
+    // poison the scheduler's wheel-offset calibration. Run a throwaway solve here
+    // so Burst is warm before the first bump is ever captured.
+    private void Start() => WarmUpSolver();
+
+    private void WarmUpSolver()
+    {
+        const int n = 8;
+        var dummyRoad = RoadProfile.FromSamples(new float[n], 0f, 0.001f, Allocator.TempJob);
+        var cands = QuarterCarSolver.LinSpace(cMin, cMax, 8, Allocator.TempJob);
+        var results = new NativeArray<SearchResult>(8, Allocator.TempJob);
+
+        new DampingSearchJob
+        {
+            m = mass, k = stiffness,
+            t0 = 0f, dt = solverDt, steps = 16, x0 = 0f, v0 = 0f,
+            roadT0 = dummyRoad.T0, roadDt = dummyRoad.Dt,
+            roadY = dummyRoad.Y, roadDy = dummyRoad.Dy,
+            candidatesC = cands, results = results
+        }.Schedule(8, 1).Complete();
+
+        cands.Dispose();
+        results.Dispose();
+        dummyRoad.Dispose();
     }
 
     // ---- ToF stream handler ------------------------------------------
@@ -267,7 +297,11 @@ public class BumpPipeline : MonoBehaviour
             Results = results,
             Road = road,
             StartTime = Time.realtimeSinceStartup,
-            BumpLengthMeters = bumpLengthMeters
+            BumpLengthMeters = bumpLengthMeters,
+            // Trailing-edge belt position at capture time. This is the accurate
+            // observation coordinate: unlike sampling TraveledDistance when the
+            // solve completes, it carries NO async solve latency.
+            ObservedBeltPos = endPos
         };
     }
 
@@ -318,7 +352,8 @@ public class BumpPipeline : MonoBehaviour
             PeakMin = peakMin,
             PeakMax = peakMax,
             SolveMs = lastSolveMs,
-            SlackMs = lastPredictiveSlackMs
+            SlackMs = lastPredictiveSlackMs,
+            ObservedBeltPos = _inFlight.ObservedBeltPos
         });
 
         DisposeInFlight();

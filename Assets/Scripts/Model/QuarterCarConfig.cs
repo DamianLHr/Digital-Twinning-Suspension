@@ -28,9 +28,11 @@ public class QuarterCarConfig : MonoBehaviour
     [Tooltip("Initial damping coefficient. Overwritten at runtime by the actuator " +
              "as soon as the first bump is solved.")]
     [Min(0f)]     public float initialDamping  = 600f;
-    [Tooltip("Tyre stiffness (between belt and unsprung mass). Used if you have a " +
-             "second joint modeling the tyre; ignored otherwise.")]
-    [Min(0f)]     public float tyreStiffness   = 200000f;
+    [Tooltip("Tyre vertical stiffness (between belt and unsprung mass). Pushed to the " +
+             "UnsprungMass tyre joint so this is the single source of truth.")]
+    [Min(0f)]     public float tyreStiffness   = 120000f;
+    [Tooltip("Tyre vertical damping (N·s/m). Pushed to the UnsprungMass tyre joint.")]
+    [Min(0f)]     public float tyreDamping     = 600f;
 
     [Header("Damping search range (N·s/m)")]
     [Tooltip("Lower bound for the parallel damping sweep in BumpPipeline.")]
@@ -64,15 +66,19 @@ public class QuarterCarConfig : MonoBehaviour
         // 1) Masses
         if (sprung != null)
         {
-            SetPrivateField(sprung, "mass", sprungMassKg);
+            sprung.mass = sprungMassKg;
             var rb = sprung.GetComponent<Rigidbody>();
             if (rb != null) rb.mass = sprungMassKg;
         }
         if (unsprung != null)
         {
-            SetPrivateField(unsprung, "mass", unsprungMassKg);
+            unsprung.mass = unsprungMassKg;
             var rb = unsprung.GetComponent<Rigidbody>();
             if (rb != null) rb.mass = unsprungMassKg;
+
+            // Tyre spring/damper: single source of truth. Applies live if the
+            // joint exists, otherwise the values are used when it's created.
+            unsprung.SetTyreDrive(tyreStiffness, tyreDamping);
         }
 
         // 2) Spring / damper
@@ -89,10 +95,10 @@ public class QuarterCarConfig : MonoBehaviour
         // 3) Solver parameters must match the physical rig
         if (pipeline != null)
         {
-            SetPrivateField(pipeline, "mass",      sprungMassKg);
-            SetPrivateField(pipeline, "stiffness", springStiffness);
-            SetPrivateField(pipeline, "cMin",      cMin);
-            SetPrivateField(pipeline, "cMax",      cMax);
+            pipeline.mass      = sprungMassKg;
+            pipeline.stiffness = springStiffness;
+            pipeline.cMin      = cMin;
+            pipeline.cMax      = cMax;
         }
 
         // 4) Sanity warnings
@@ -124,15 +130,4 @@ public class QuarterCarConfig : MonoBehaviour
             springJoint = sprung.GetComponent<ConfigurableJoint>();
     }
 
-    // The component fields we're writing to are [SerializeField] private, which
-    // is intentional — we want them visible in the Inspector but not part of the
-    // public API. Reflection is the cleanest way to drive them from one place
-    // without making every model class expose a setter just for this script.
-    private static void SetPrivateField(object target, string name, float value)
-    {
-        var f = target.GetType().GetField(name,
-            System.Reflection.BindingFlags.NonPublic |
-            System.Reflection.BindingFlags.Instance);
-        if (f != null) f.SetValue(target, value);
-    }
 }

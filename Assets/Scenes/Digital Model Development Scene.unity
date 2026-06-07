@@ -493,6 +493,7 @@ MonoBehaviour:
   springStiffness: 200000
   initialDamping: 600
   tyreStiffness: 200000
+  tyreDamping: 600
   cMin: 50
   cMax: 3000
   sprung: {fileID: 923035447}
@@ -1524,7 +1525,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.15
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1760,6 +1761,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 593075710115377530, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: currentSpeed
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 1168382237094408235, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Name
       value: QuarterCarRig
@@ -1804,6 +1809,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4003752654410717584, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: packetSink
+      value: 
+      objectReference: {fileID: 6995205313120960916}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

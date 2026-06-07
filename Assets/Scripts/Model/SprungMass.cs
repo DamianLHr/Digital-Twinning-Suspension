@@ -11,7 +11,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class SprungMass : MonoBehaviour
 {
-    [SerializeField] private float mass = 5.0f;
+    [Tooltip("Sprung mass (kg). Set centrally by QuarterCarConfig.")]
+    public float mass = 5.0f;
     [SerializeField] private Rigidbody rb;
 
     private Vector3 _lastVelocity;

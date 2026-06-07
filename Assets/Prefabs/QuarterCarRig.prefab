@@ -262,8 +262,8 @@ MonoBehaviour:
   rayLength: 1
   selfCollider: {fileID: 4888369972077863975}
   drawDebug: 1
-  tyreStiffness: 50000
-  tyreDamping: 300
+  tyreStiffness: 200000
+  tyreDamping: 600
   maxTyreForce: 0
 --- !u!1001 &1326069445217477361
 PrefabInstance:
@@ -1025,9 +1025,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8536812581196974080, guid: 07e9dcce649de184e99ccb5873f7a521, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5143964079504177468}
-    - targetCorrespondingSourceObject: {fileID: -8536812581196974080, guid: 07e9dcce649de184e99ccb5873f7a521, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6297407020187593434}
   m_SourcePrefab: {fileID: 100100000, guid: 07e9dcce649de184e99ccb5873f7a521, type: 3}
 --- !u!4 &3529451476508715147 stripped
 Transform:
@@ -1187,28 +1184,6 @@ ConfigurableJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
---- !u!64 &6297407020187593434
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6481989790647085564}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 3736213754101489272, guid: 07e9dcce649de184e99ccb5873f7a521, type: 3}
 --- !u!1001 &6370650881437187449
 PrefabInstance:
   m_ObjectHideFlags: 0

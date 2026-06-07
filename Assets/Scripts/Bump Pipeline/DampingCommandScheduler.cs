@@ -79,13 +79,12 @@ public class DampingCommandScheduler : MonoBehaviour
 
     private void OnSolveCompleted(BumpPipeline.SolveSnapshot snap)
     {
-        Debug.Log($"[Scheduler] OnSolveCompleted received, state={State}");
-
-        // The TraveledDistance at which this bump was observed. We use the
-        // belt position *now* (solve just completed, a few ms after the
-        // trailing edge passed the sensor). That's close enough; the error
-        // is bounded by solve time × belt speed, typically <10 mm.
-        float observedAt = terrain != null ? terrain.TraveledDistance : 0f;
+        // The belt position at which this bump was observed — stamped by the
+        // pipeline at the bump's trailing edge (capture time), so it carries NO
+        // async solve latency. Using this instead of "TraveledDistance now"
+        // removes the latency bias that previously skewed calibration and made
+        // the first (Burst-cold) solve poison the wheel-offset measurement.
+        float observedAt = snap.ObservedBeltPos;
 
         if (State == CalibState.WaitingForObservation && !_firstObservationCaptured)
         {
