@@ -36,6 +36,10 @@ public class VisualizerManager : MonoBehaviour
     [SerializeField] private float panelMargin = 8f;
     [Tooltip("Overlap-resolution passes per frame. More = tighter packing.")]
     [SerializeField] private int separationIterations = 16;
+    [Tooltip("A floating panel only re-slots when its world anchor drifts this many screen " +
+             "pixels. Smaller vertical motion (a bobbing mass) then leaves the panel STILL " +
+             "while only the leader line tracks the object. Larger = steadier panels.")]
+    [SerializeField] private float placementDeadzone = 48f;
 
     [Header("Leader lines")]
     [SerializeField] private bool drawLeaderLines = true;
@@ -45,6 +49,12 @@ public class VisualizerManager : MonoBehaviour
     // appearing / disappearing.
     private readonly Dictionary<IVisualizerPanel, bool> _selected =
         new Dictionary<IVisualizerPanel, bool>();
+
+    // Stabilized placement anchors (screen px). A panel's placement only follows
+    // its live world-projected anchor when it drifts past placementDeadzone, so
+    // small vertical bob doesn't shake the panel — only the leader line moves.
+    private readonly Dictionary<IVisualizerPanel, Vector2> _placeAnchor =
+        new Dictionary<IVisualizerPanel, Vector2>();
 
     // This frame's resolved layout, consumed in OnGUI to draw leader lines.
     private struct Placed { public Rect Rect; public Vector2 Anchor; public bool HasAnchor; }
@@ -115,14 +125,23 @@ public class VisualizerManager : MonoBehaviour
                 Vector3 sp = viewCamera.WorldToScreenPoint(p.WorldAnchor.position);
                 if (sp.z <= 0f) { p.Show = false; continue; }   // behind camera
 
-                anchorPt = new Vector2(sp.x, Screen.height - sp.y);   // GUI space (y down)
+                anchorPt = new Vector2(sp.x, Screen.height - sp.y);   // LIVE point (leader line)
+
+                // Stabilized placement anchor: only follows the live point when it
+                // drifts past the deadzone, so a bobbing object doesn't shake the panel.
+                if (!_placeAnchor.TryGetValue(p, out Vector2 placeAt) ||
+                    Vector2.Distance(placeAt, anchorPt) > placementDeadzone)
+                {
+                    placeAt = anchorPt;
+                    _placeAnchor[p] = placeAt;
+                }
 
                 // Alternate sides so panels don't all pile up on one side of the
                 // model: even ones go right of the anchor, odd ones go left.
                 bool right = !alternateSides || (anchoredCount % 2 == 1);
-                float x = right ? anchorPt.x + anchorOffset.x
-                                : anchorPt.x - anchorOffset.x - size.x;
-                topLeft = new Vector2(x, anchorPt.y - size.y * 0.5f + anchorOffset.y);
+                float x = right ? placeAt.x + anchorOffset.x
+                                : placeAt.x - anchorOffset.x - size.x;
+                topLeft = new Vector2(x, placeAt.y - size.y * 0.5f + anchorOffset.y);
                 anchoredCount++;
                 isAnchored = true;
             }
@@ -213,7 +232,8 @@ public class VisualizerManager : MonoBehaviour
     {
         var panels = VisualizerRegistry.Panels;
         const float pad = 8f, rowH = 20f;
-        float h = pad * 2f + rowH * (panels.Count + 1);
+        // rows: title + (master toggle + each panel) when any exist, else title + "(none)"
+        float h = pad * 2f + rowH * (panels.Count > 0 ? panels.Count + 2 : 2);
         Rect box = new Rect(menuAnchor.x, menuAnchor.y, menuWidth, h);
 
         Color old = GUI.color;
@@ -232,6 +252,23 @@ public class VisualizerManager : MonoBehaviour
                       "(none in scene)", _label);
             return;
         }
+
+        // Master show/hide-all toggle: checked only when every panel is shown.
+        bool allShown = true;
+        for (int i = 0; i < panels.Count; i++)
+        {
+            _selected.TryGetValue(panels[i], out bool s);
+            if (!s) { allShown = false; break; }
+        }
+        bool newAll = GUI.Toggle(new Rect(menuAnchor.x + pad, y, menuWidth - pad * 2f, rowH),
+                                 allShown, allShown ? "  <b>Hide all</b>" : "  <b>Show all</b>", _toggle);
+        if (newAll != allShown)
+            for (int i = 0; i < panels.Count; i++)
+            {
+                _selected[panels[i]] = newAll;
+                panels[i].Show = newAll;
+            }
+        y += rowH;
 
         for (int i = 0; i < panels.Count; i++)
         {
@@ -254,6 +291,7 @@ public class VisualizerManager : MonoBehaviour
             _toggle = new GUIStyle(GUI.skin.toggle)
             {
                 fontSize = 11,
+                richText = true,
                 normal = { textColor = Color.white },
                 onNormal = { textColor = Color.white },
                 hover = { textColor = Color.white },

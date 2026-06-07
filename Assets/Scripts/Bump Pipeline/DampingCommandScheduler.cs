@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Schedules damping changes for a closed-loop drum with a ToF sensor mounted a
@@ -74,7 +75,17 @@ public class DampingCommandScheduler : MonoBehaviour
     public float WheelOffset => wheelOffset;
     public int QueueDepth => queueDepth;
 
-    private struct PendingCommand { public float TargetPos; public float C; }
+    // ---- telemetry for the accuracy visualizer / confidence monitor ----
+    [System.Serializable] public struct ScheduledInfo { public float ObservedPos, TargetPos, C, SpeedAtSolve; }
+    [System.Serializable] public struct AppliedInfo   { public float TargetPos, AppliedPos, C, SpeedAtSolve, SpeedAtApply; }
+    [System.Serializable] public class ScheduledEvent : UnityEvent<ScheduledInfo> { }
+    [System.Serializable] public class AppliedEvent   : UnityEvent<AppliedInfo> { }
+
+    public ScheduledEvent OnCommandScheduled = new ScheduledEvent();
+    public AppliedEvent   OnCommandApplied   = new AppliedEvent();
+    public FloatEvent     OnJolt             = new FloatEvent();   // belt pos at each detected jolt
+
+    private struct PendingCommand { public float TargetPos; public float C; public float SpeedAtSolve; }
     private readonly List<PendingCommand> _pending = new List<PendingCommand>(16);
 
     private float _firstObservationPos;
@@ -166,19 +177,31 @@ public class DampingCommandScheduler : MonoBehaviour
         if (State != CalibState.Calibrated) return;
 
         // The observed bump returns to the wheel after wheelOffset more metres.
-        _pending.Add(new PendingCommand { TargetPos = observedAt + wheelOffset, C = snap.BestC });
+        float targetPos = observedAt + wheelOffset;
+        float speedAtSolve = terrain != null ? terrain.LinearSpeed : 0f;
+        _pending.Add(new PendingCommand { TargetPos = targetPos, C = snap.BestC, SpeedAtSolve = speedAtSolve });
         queueDepth = _pending.Count;
+
+        OnCommandScheduled.Invoke(new ScheduledInfo
+        {
+            ObservedPos  = observedAt,
+            TargetPos    = targetPos,
+            C            = snap.BestC,
+            SpeedAtSolve = speedAtSolve
+        });
     }
 
     private void OnAcceleration(Vector3 a)
     {
-        if (State != CalibState.WaitingForJolt) return;   // jolt-based fallback only
         if (!BeltMoving()) return;
 
         float aMag = Mathf.Abs(a.y - gravityBaseline);    // Y is up in SprungMass
         if (aMag < joltThreshold) return;
 
-        float joltAt    = terrain != null ? terrain.TraveledDistance : 0f;
+        float joltAt = terrain != null ? terrain.TraveledDistance : 0f;
+        OnJolt.Invoke(joltAt);                            // ground-truth marker, fired in any state
+
+        if (State != CalibState.WaitingForJolt) return;   // calibration only in the jolt-based fallback
         float candidate = joltAt - _firstObservationPos;
 
         // Validate against drum geometry. On a periodic drum, any whole extra
@@ -238,6 +261,14 @@ public class DampingCommandScheduler : MonoBehaviour
             if (dampingCommand != null) dampingCommand.Publish(_pending[i].C);
             lastAppliedC = _pending[i].C;
             lastAppliedAtPos = now;
+            OnCommandApplied.Invoke(new AppliedInfo
+            {
+                TargetPos    = _pending[i].TargetPos,
+                AppliedPos   = now,
+                C            = _pending[i].C,
+                SpeedAtSolve = _pending[i].SpeedAtSolve,
+                SpeedAtApply = terrain.LinearSpeed
+            });
             popped++;
         }
         if (popped > 0)

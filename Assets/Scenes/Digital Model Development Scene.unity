@@ -209,6 +209,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db6fac6090972d24d93670f89ea6d46f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.ToFSensorOutput
+--- !u!4 &417373783 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4085645531404273574, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+  m_PrefabInstance: {fileID: 8832490091397412691}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &499001053 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7415652037409829594, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
@@ -1261,6 +1266,7 @@ MonoBehaviour:
   alternateSides: 1
   panelMargin: 40
   separationIterations: 16
+  placementDeadzone: 48
   drawLeaderLines: 1
   leaderColor: {r: 1, g: 1, b: 1, a: 0.5}
 --- !u!4 &1433079616
@@ -1541,6 +1547,8 @@ GameObject:
   - component: {fileID: 1942129324}
   - component: {fileID: 1942129325}
   - component: {fileID: 1942129326}
+  - component: {fileID: 1942129327}
+  - component: {fileID: 1942129328}
   m_Layer: 0
   m_Name: BumpPipeline
   m_TagString: Untagged
@@ -1662,6 +1670,64 @@ MonoBehaviour:
   queueDepth: 0
   lastAppliedC: 0
   lastAppliedAtPos: 0
+  OnCommandScheduled:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCommandApplied:
+    m_PersistentCalls:
+      m_Calls: []
+  OnJolt:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1942129327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942129322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3623e377c1816b41916faad45c5617a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SchedulerAccuracyVisualizer
+  scheduler: {fileID: 1942129326}
+  drum: {fileID: 8832490091397412700}
+  tofEmitter: {fileID: 417373783}
+  viewCamera: {fileID: 652646033}
+  showTags: 1
+  maxTags: 12
+  tagScheduled: {r: 1, g: 0.85, b: 0.3, a: 1}
+  tagApplied: {r: 0.4, g: 1, b: 0.5, a: 1}
+  show: 1
+  title: Scheduler accuracy
+  anchor: {x: 12, y: 320}
+  floatInWorld: 0
+  worldAnchorOverride: {fileID: 0}
+  tableRows: 8
+--- !u!114 &1942129328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942129322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caa22aafdd92bcb4383a4b84e070e04b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DampingConfidenceMonitor
+  pipeline: {fileID: 1942129324}
+  scheduler: {fileID: 1942129326}
+  drum: {fileID: 8832490091397412700}
+  minBeltSpeed: 0.02
+  healthyBumpSamples: 8
+  speedChangeFrac: 0.2
+  show: 1
+  title: Solve confidence
+  anchor: {x: 12, y: 120}
+  floatInWorld: 0
+  worldAnchorOverride: {fileID: 0}
 --- !u!1 &2097805548
 GameObject:
   m_ObjectHideFlags: 0
