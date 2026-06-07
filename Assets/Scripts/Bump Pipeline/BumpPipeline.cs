@@ -28,6 +28,9 @@ public class BumpPipeline : MonoBehaviour
     [SerializeField] private float sensorLead = 0.10f;
 
     public float NominalStandoff => nominalStandoff;
+    /// <summary>Known geometric belt distance from the ToF beam to the wheel contact patch.
+    /// The scheduler uses this to validate its auto-measured wheel offset.</summary>
+    public float SensorLead => sensorLead;
 
     [Header("Detection")]
     [Tooltip("Deviation from flat (m) that starts a capture. Magnitude-based, so " +

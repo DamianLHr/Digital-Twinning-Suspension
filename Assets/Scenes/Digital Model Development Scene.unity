@@ -1648,9 +1648,15 @@ MonoBehaviour:
   dampingCommand: {fileID: 7215020815612586732}
   terrain: {fileID: 8832490091397412700}
   accel: {fileID: 775742415}
-  joltThreshold: 2
+  sensorAngleBehindDeg: 90
+  useGeometricOffset: 1
   manualWheelOffset: 0
+  joltThreshold: 2
   gravityBaseline: 9.81
+  minCalibrationSpeed: 0.02
+  primeRevolutions: 1.25
+  offsetToleranceDeg: 45
+  fallbackExpectedOffset: 0.1
   State: 0
   wheelOffset: 0
   queueDepth: 0
@@ -1761,10 +1767,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 593075710115377530, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: currentSpeed
-      value: 0.25
-      objectReference: {fileID: 0}
     - target: {fileID: 1168382237094408235, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Name
       value: QuarterCarRig
@@ -1809,10 +1811,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4003752654410717584, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: packetSink
+    - target: {fileID: 7642642040356846079, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: pipeline
       value: 
-      objectReference: {fileID: 6995205313120960916}
+      objectReference: {fileID: 1942129324}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
