@@ -1907,6 +1907,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 732082807419261426, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: title
+      value: Potentiometer - Sprung
+      objectReference: {fileID: 0}
+    - target: {fileID: 732082807419261426, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: inputMax
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 732082807419261426, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: slideLengthLocalY
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 1168382237094408235, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Name
       value: QuarterCarRig
@@ -1976,13 +1988,29 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1808107237}
     - target: {fileID: 5023672923000606365, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 4.6055136
+      objectReference: {fileID: 0}
+    - target: {fileID: 5023672923000606365, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_LocalPosition.x
       value: -99.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 5023672923000606365, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 56
       objectReference: {fileID: 0}
     - target: {fileID: 6002097869086498077, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSource
       value: 
       objectReference: {fileID: 1808107237}
+    - target: {fileID: 6040320306118141043, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: inputMax
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6040320306118141043, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: slideLengthLocalY
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 7642642040356846079, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: pipeline
       value: 

@@ -16,7 +16,7 @@ MonoBehaviour:
   uniformScaleButtonTextureOn: {fileID: 2800000, guid: a662c3098bedf8842817068729397a77, type: 3}
   uniformScaleButtonTextureOff: {fileID: 2800000, guid: 4cd4d5c92b4f48347bf45eb064f3d24c, type: 3}
   showTools: 1
-  uniformScaleEnabled: 1
+  uniformScaleEnabled: 0
   includeChildren: 0
   ignoreNonMeshChildren: 0
   boundsMode: 0
