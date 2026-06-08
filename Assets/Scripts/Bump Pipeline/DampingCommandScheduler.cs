@@ -28,7 +28,8 @@ public class DampingCommandScheduler : MonoBehaviour
     [Header("Wiring")]
     [SerializeField] private BumpPipeline pipeline;
     [SerializeField] private DampingCommand dampingCommand;
-    [SerializeField] private TerrainWheel terrain;
+    [UnityEngine.Serialization.FormerlySerializedAs("terrain")]
+    [SerializeField] private TerrainWheel terrainWheel;
     [SerializeField] private AccelerometerOutput accel;
 
     [Header("Geometry")]
@@ -97,7 +98,7 @@ public class DampingCommandScheduler : MonoBehaviour
         if (pipeline != null) pipeline.OnSolveCompleted.AddListener(OnSolveCompleted);
         if (accel != null) accel.OnAcceleration.AddListener(OnAcceleration);
 
-        _enableTravel = terrain != null ? terrain.TraveledDistance : 0f;
+        _enableTravel = terrainWheel != null ? terrainWheel.TraveledDistance : 0f;
 
         if (manualWheelOffset > 0f)
         {
@@ -114,7 +115,7 @@ public class DampingCommandScheduler : MonoBehaviour
 
     // --- geometry / guards ----------------------------------------------
 
-    private float Circumference() => terrain != null ? Mathf.PI * terrain.Diameter : 0f;
+    private float Circumference() => terrainWheel != null ? Mathf.PI * terrainWheel.Diameter : 0f;
 
     /// <summary>Belt-travel from a ToF observation to the bump's NEXT wheel contact:
     /// (1 − angle/360) of a revolution. Falls back to a fixed value if no diameter.</summary>
@@ -125,15 +126,15 @@ public class DampingCommandScheduler : MonoBehaviour
         return Mathf.Clamp01(1f - sensorAngleBehindDeg / 360f) * circ;
     }
 
-    private bool BeltMoving() => terrain != null && terrain.LinearSpeed >= minCalibrationSpeed;
+    private bool TerrainWheelMoving() => terrainWheel != null && terrainWheel.LinearSpeed >= minCalibrationSpeed;
 
     private bool PrimeElapsed()
     {
-        if (terrain == null) return false;
+        if (terrainWheel == null) return false;
         float circ  = Circumference();
         float prime = circ > 0f ? primeRevolutions * circ
                                 : primeRevolutions * fallbackExpectedOffset;
-        return (terrain.TraveledDistance - _enableTravel) >= prime;
+        return (terrainWheel.TraveledDistance - _enableTravel) >= prime;
     }
 
     // --- calibration -----------------------------------------------------
@@ -144,7 +145,7 @@ public class DampingCommandScheduler : MonoBehaviour
     {
         if (State == CalibState.Calibrated) return;
         if (!useGeometricOffset || Circumference() <= 0f) return;   // -> jolt-based fallback
-        if (!BeltMoving() || !PrimeElapsed()) return;
+        if (!TerrainWheelMoving() || !PrimeElapsed()) return;
 
         wheelOffset = ExpectedOffset();
         State = CalibState.Calibrated;
@@ -164,7 +165,7 @@ public class DampingCommandScheduler : MonoBehaviour
             // Geometric mode calibrates in FixedUpdate; don't start the jolt dance.
             if (useGeometricOffset && Circumference() > 0f) return;
             // Jolt-based fallback: only anchor on a moving, primed belt.
-            if (!BeltMoving() || !PrimeElapsed()) return;
+            if (!TerrainWheelMoving() || !PrimeElapsed()) return;
 
             _firstObservationPos = observedAt;
             _firstObservationCaptured = true;
@@ -178,7 +179,7 @@ public class DampingCommandScheduler : MonoBehaviour
 
         // The observed bump returns to the wheel after wheelOffset more metres.
         float targetPos = observedAt + wheelOffset;
-        float speedAtSolve = terrain != null ? terrain.LinearSpeed : 0f;
+        float speedAtSolve = terrainWheel != null ? terrainWheel.LinearSpeed : 0f;
         _pending.Add(new PendingCommand { TargetPos = targetPos, C = snap.BestC, SpeedAtSolve = speedAtSolve });
         queueDepth = _pending.Count;
 
@@ -193,12 +194,12 @@ public class DampingCommandScheduler : MonoBehaviour
 
     private void OnAcceleration(Vector3 a)
     {
-        if (!BeltMoving()) return;
+        if (!TerrainWheelMoving()) return;
 
         float aMag = Mathf.Abs(a.y - gravityBaseline);    // Y is up in SprungMass
         if (aMag < joltThreshold) return;
 
-        float joltAt = terrain != null ? terrain.TraveledDistance : 0f;
+        float joltAt = terrainWheel != null ? terrainWheel.TraveledDistance : 0f;
         OnJolt.Invoke(joltAt);                            // ground-truth marker, fired in any state
 
         if (State != CalibState.WaitingForJolt) return;   // calibration only in the jolt-based fallback
@@ -249,9 +250,9 @@ public class DampingCommandScheduler : MonoBehaviour
     private void FixedUpdate()
     {
         if (State != CalibState.Calibrated) TryGeometricCalibrate();
-        if (State != CalibState.Calibrated || _pending.Count == 0 || terrain == null) return;
+        if (State != CalibState.Calibrated || _pending.Count == 0 || terrainWheel == null) return;
 
-        float now = terrain.TraveledDistance;
+        float now = terrainWheel.TraveledDistance;
 
         // Apply all matured commands. Last-write-wins if several mature this tick.
         int popped = 0;
@@ -267,7 +268,7 @@ public class DampingCommandScheduler : MonoBehaviour
                 AppliedPos   = now,
                 C            = _pending[i].C,
                 SpeedAtSolve = _pending[i].SpeedAtSolve,
-                SpeedAtApply = terrain.LinearSpeed
+                SpeedAtApply = terrainWheel.LinearSpeed
             });
             popped++;
         }

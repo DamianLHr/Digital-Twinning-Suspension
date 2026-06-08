@@ -1,10 +1,10 @@
 using UnityEngine;
 
-/// <summary>Readout of the latest belt speed command, with an optional spinning indicator.</summary>
-public class BeltActuatorVisualizer : ActuatorVisualizerBase
+/// <summary>Readout of the latest terrain wheel speed command, with an optional spinning indicator.</summary>
+public class TerrainWheelActuatorVisualizer : ActuatorVisualizerBase
 {
     [Header("Source")]
-    [SerializeField] private SpeedCommand command;
+    [SerializeField] private TerrainWheelSpeedCommand command;
 
     [Header("Optional indicator (assigned scene object)")]
     [Tooltip("Transform spun to visualize speed. Leave empty for none.")]
@@ -14,13 +14,13 @@ public class BeltActuatorVisualizer : ActuatorVisualizerBase
 
     private void Reset()
     {
-        title = "Belt speed cmd";
+        title = "Terrain wheel speed cmd";
         units = "m/s";
     }
 
     protected override void Subscribe()
     {
-        if (command == null) command = GetComponent<SpeedCommand>();
+        if (command == null) command = GetComponent<TerrainWheelSpeedCommand>();
         if (command != null) command.OnSpeed.AddListener(Push);
     }
 

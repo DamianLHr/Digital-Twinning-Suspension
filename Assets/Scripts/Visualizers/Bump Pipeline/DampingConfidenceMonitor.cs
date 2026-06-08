@@ -23,13 +23,15 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
     [Header("Wiring")]
     [SerializeField] private BumpPipeline pipeline;
     [SerializeField] private DampingCommandScheduler scheduler;
-    [SerializeField] private TerrainWheel drum;
+    [UnityEngine.Serialization.FormerlySerializedAs("drum")]
+    [SerializeField] private TerrainWheel terrainWheel;
     [Tooltip("Optional: the Pico serial transport, for link-health diagnostics in Twinning.")]
     [SerializeField] private PicoSerialTransport transport;
 
     [Header("Thresholds")]
-    [Tooltip("Belt surface speed (m/s) below which predictive control is flagged as inactive.")]
-    [SerializeField] private float minBeltSpeed = 0.02f;
+    [Tooltip("Terrain wheel surface speed (m/s) below which predictive control is flagged as inactive.")]
+    [UnityEngine.Serialization.FormerlySerializedAs("minBeltSpeed")]
+    [SerializeField] private float minTerrainWheelSpeed = 0.02f;
     [Tooltip("A bump captured with fewer than this many samples is under-resolved.")]
     [SerializeField] private int healthyBumpSamples = 8;
     [Tooltip("Flag when |v_apply − v_solve| / v_solve exceeds this fraction.")]
@@ -107,8 +109,8 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
     {
         _diags.Clear();
 
-        if (drum != null && drum.LinearSpeed < minBeltSpeed)
-            Add(Severity.Warning, $"Belt stopped/too slow ({drum.LinearSpeed:0.000} m/s) — predictive control inactive.");
+        if (terrainWheel != null && terrainWheel.LinearSpeed < minTerrainWheelSpeed)
+            Add(Severity.Warning, $"Terrain wheel stopped/too slow ({terrainWheel.LinearSpeed:0.000} m/s) — predictive control inactive.");
 
         if (scheduler != null && scheduler.State != DampingCommandScheduler.CalibState.Calibrated)
             Add(Severity.Info, $"Calibration not established ({scheduler.State}) — running default damping.");

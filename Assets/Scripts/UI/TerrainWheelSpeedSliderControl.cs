@@ -2,28 +2,28 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Drives a SpeedCommand from a UI Slider — the producer the belt actuator
-/// chain was missing. Map the slider's 0..1 (or custom min/max) range to a belt
-/// speed in m/s and publish it on the shared channel; whichever belt actuator
-/// ModeManager left enabled (Digital* -> model, Real* -> packet) consumes it.
+/// Drives a TerrainWheelSpeedCommand from a UI Slider. Maps the slider's range to a
+/// terrain wheel speed in m/s and publishes it on the shared channel; whichever
+/// driver/actuator is active consumes it (TerrainWheelSpeedDriver moves the sim
+/// drum; RealTerrainWheelActuator transmits to the device in Twinning).
 ///
-/// Wiring: put this on the slider GameObject (or any object), assign the Slider
-/// and the SpeedCommand. It hooks the slider's onValueChanged, so it publishes
-/// only when the value moves — plus once on enable so the belt starts at the
-/// slider's current position rather than stale.
+/// Wiring: put this on the slider GameObject (or any object), assign the Slider and
+/// the TerrainWheelSpeedCommand. It hooks the slider's onValueChanged, so it
+/// publishes only when the value moves — plus once on enable so the wheel starts at
+/// the slider's current position rather than stale.
 /// </summary>
-public class BeltSpeedSliderControl : MonoBehaviour
+public class TerrainWheelSpeedSliderControl : MonoBehaviour
 {
     [Header("Wiring")]
-    [Tooltip("Slider whose value drives the belt speed. Defaults to a Slider on this object.")]
+    [Tooltip("Slider whose value drives the terrain wheel speed. Defaults to a Slider on this object.")]
     [SerializeField] private Slider slider;
-    [Tooltip("Speed command channel to publish to (the belt actuators consume this).")]
-    [SerializeField] private SpeedCommand speedCommand;
+    [Tooltip("Speed command channel to publish to (the terrain wheel driver/actuator consume this).")]
+    [SerializeField] private TerrainWheelSpeedCommand speedCommand;
 
     [Header("Mapping (slider value -> m/s)")]
-    [Tooltip("Belt speed when the slider is at its minimum.")]
+    [Tooltip("Terrain wheel speed when the slider is at its minimum.")]
     [SerializeField] private float speedAtSliderMin = 0f;
-    [Tooltip("Belt speed when the slider is at its maximum.")]
+    [Tooltip("Terrain wheel speed when the slider is at its maximum.")]
     [SerializeField] private float speedAtSliderMax = 2f;
 
     [Header("Diagnostics (read-only)")]
@@ -34,7 +34,7 @@ public class BeltSpeedSliderControl : MonoBehaviour
         if (slider == null) slider = GetComponent<Slider>();
         if (slider != null) slider.onValueChanged.AddListener(OnSliderChanged);
 
-        // Publish the current position immediately so the belt isn't left on a
+        // Publish the current position immediately so the wheel isn't left on a
         // stale command from before this control existed.
         if (slider != null) OnSliderChanged(slider.value);
     }

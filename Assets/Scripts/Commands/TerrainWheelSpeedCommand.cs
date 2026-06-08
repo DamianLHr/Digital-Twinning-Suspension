@@ -1,7 +1,7 @@
 using UnityEngine;
 
-/// <summary>Commanded belt / drive surface speed (m/s).</summary>
-public class SpeedCommand : ActuatorCommandBase
+/// <summary>Commanded terrain wheel surface speed (m/s).</summary>
+public class TerrainWheelSpeedCommand : ActuatorCommandBase
 {
     [SerializeField] private float latestSpeed;
 

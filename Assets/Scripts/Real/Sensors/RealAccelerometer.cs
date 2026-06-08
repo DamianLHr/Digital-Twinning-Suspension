@@ -17,7 +17,7 @@ public class RealAccelerometer : RealSensorBase
     {
         if (accelOutput == null || packet.Payload.Length < 12) return;
 
-        Vector3 g = new Vector3(packet.ReadFloat(0), packet.ReadFloat(4), packet.ReadFloat(8));
+        Vector3 g = PicoChannelCodec.DecodeAccelG(packet);
         accelOutput.Publish(g * GToMs2);
     }
 }

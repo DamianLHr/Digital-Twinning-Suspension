@@ -494,9 +494,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba1b5e5745462e40a78eda12436fcfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.QuarterCarConfig
-  sprungMassKg: 100
-  unsprungMassKg: 0.5
-  springStiffness: 200000
+  sprungMassKg: 0.1304
+  unsprungMassKg: 0.0702
+  springConstant: 27
   initialDamping: 600
   tyreStiffness: 200000
   tyreDamping: 600
@@ -506,10 +506,10 @@ MonoBehaviour:
   unsprung: {fileID: 499001053}
   springJoint: {fileID: 923035446}
   pipeline: {fileID: 1942129324}
-  staticDeflectionMm: 4.905
-  naturalFreqHz: 7.117625
-  criticalDamping: 8944.271
-  dampingRatioInitial: 0.06708204
+  staticDeflectionMm: 47.37867
+  naturalFreqHz: 2.290146
+  criticalDamping: 3.752759
+  dampingRatioInitial: 159.88237
 --- !u!153 &923035446 stripped
 ConfigurableJoint:
   m_CorrespondingSourceObject: {fileID: 5143964079504177468, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
@@ -936,9 +936,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModeManager
   mode: 0
-  digitalDevices: 7
+  digitalDevices: 6
   realDevices: 7
-  modeReceivers: 2
+  modeReceivers: 4
 --- !u!4 &1326029550
 Transform:
   m_ObjectHideFlags: 0
@@ -964,7 +964,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1326639711}
   m_Layer: 0
-  m_Name: ' #------------------------------- Default -------------------------------# '
+  m_Name: ' #------------------------- Default -------------------------# '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -995,7 +995,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1408796075}
   m_Layer: 0
-  m_Name: ' #------------------------------- UI/UX -------------------------------#'
+  m_Name: ' #------------------------- UI/UX -------------------------#'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1295,7 +1295,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1659664207}
   m_Layer: 0
-  m_Name: ' #------------------------------- Main -------------------------------# '
+  m_Name: ' #------------------------- Main -------------------------# '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1444,7 +1444,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1808107236
 Transform:
   m_ObjectHideFlags: 0
@@ -1467,7 +1467,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1808107235}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e5a7352344c97947b21ced0f40674bc, type: 3}
   m_Name: 
@@ -1657,7 +1657,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.BumpPipeline
   tof: {fileID: 308208525}
-  terrain: {fileID: 8832490091397412700}
+  terrainWheel: {fileID: 8832490091397412700}
   nominalStandoff: 0.04812844
   sensorLead: 0.1
   triggerHeight: 0.0005
@@ -1666,8 +1666,8 @@ MonoBehaviour:
   maxProfileSamples: 1024
   minBumpSamples: 4
   cooldownSamples: 16
-  mass: 100
-  stiffness: 200000
+  mass: 0.1304
+  stiffness: 27
   cMin: 50
   cMax: 3000
   cCandidates: 256
@@ -1727,7 +1727,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.DampingCommandScheduler
   pipeline: {fileID: 1942129324}
   dampingCommand: {fileID: 7215020815612586732}
-  terrain: {fileID: 8832490091397412700}
+  terrainWheel: {fileID: 8832490091397412700}
   accel: {fileID: 775742415}
   sensorAngleBehindDeg: 90
   useGeometricOffset: 1
@@ -1765,7 +1765,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SchedulerAccuracyVisualizer
   scheduler: {fileID: 1942129326}
-  drum: {fileID: 8832490091397412700}
+  terrainWheel: {fileID: 8832490091397412700}
   tofEmitter: {fileID: 417373783}
   viewCamera: {fileID: 652646033}
   showTags: 1
@@ -1792,9 +1792,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DampingConfidenceMonitor
   pipeline: {fileID: 1942129324}
   scheduler: {fileID: 1942129326}
-  drum: {fileID: 8832490091397412700}
+  terrainWheel: {fileID: 8832490091397412700}
   transport: {fileID: 0}
-  minBeltSpeed: 0.02
+  minTerrainWheelSpeed: 0.02
   healthyBumpSamples: 8
   speedChangeFrac: 0.2
   show: 1
@@ -1907,18 +1907,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 732082807419261426, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: title
-      value: Potentiometer - Sprung
-      objectReference: {fileID: 0}
-    - target: {fileID: 732082807419261426, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: inputMax
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 732082807419261426, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: slideLengthLocalY
-      value: 0.6
-      objectReference: {fileID: 0}
     - target: {fileID: 1168382237094408235, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Name
       value: QuarterCarRig
@@ -1971,46 +1959,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3287669932637368437, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 134
-      objectReference: {fileID: 0}
-    - target: {fileID: 3287669932637368437, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 21
+    - target: {fileID: 3833032264666608249, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_Mass
+      value: 0.1304
       objectReference: {fileID: 0}
     - target: {fileID: 4003752654410717584, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSink
       value: 
       objectReference: {fileID: 1808107237}
+    - target: {fileID: 4272721556144124586, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_Mass
+      value: 0.0702
+      objectReference: {fileID: 0}
     - target: {fileID: 4442631853580985652, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSource
       value: 
       objectReference: {fileID: 1808107237}
-    - target: {fileID: 5023672923000606365, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 4.6055136
-      objectReference: {fileID: 0}
-    - target: {fileID: 5023672923000606365, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -99.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 5023672923000606365, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 56
-      objectReference: {fileID: 0}
     - target: {fileID: 6002097869086498077, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSource
       value: 
       objectReference: {fileID: 1808107237}
-    - target: {fileID: 6040320306118141043, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: inputMax
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6040320306118141043, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: slideLengthLocalY
-      value: 0.6
-      objectReference: {fileID: 0}
     - target: {fileID: 7642642040356846079, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: pipeline
       value: 

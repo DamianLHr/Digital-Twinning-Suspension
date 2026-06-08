@@ -9,7 +9,7 @@ using UnityEngine;
 /// (ConfigurableJoint on the Spring component); this class only reports state.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class SprungMass : MonoBehaviour
+public class SprungMass : MonoBehaviour, IModeReceiver
 {
     [Tooltip("Sprung mass (kg). Set centrally by QuarterCarConfig.")]
     public float mass = 5.0f;
@@ -42,4 +42,12 @@ public class SprungMass : MonoBehaviour
     public Vector3 GetPosition()        => rb.position;
     public Vector3 GetVelocity()        => rb.linearVelocity;          // Unity 6: linearVelocity
     public Vector3 GetAcceleration()    => _acceleration;        // proper accel, matches real accelerometer
+
+    // Twinning: the real rig is the source of truth and the model mirrors it from
+    // sensor data, so make the body kinematic to stop physics fighting that.
+    public void OnModeChanged(TwinMode mode)
+    {
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        if (rb != null) rb.isKinematic = (mode == TwinMode.Twinning);
+    }
 }

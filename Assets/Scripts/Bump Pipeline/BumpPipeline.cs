@@ -21,7 +21,8 @@ public class BumpPipeline : MonoBehaviour
 
     [Header("Sources")]
     [SerializeField] private ToFSensorOutput tof;
-    [SerializeField] private TerrainWheel terrain;
+    [UnityEngine.Serialization.FormerlySerializedAs("terrain")]
+    [SerializeField] private TerrainWheel terrainWheel;
 
     [Header("Geometry")]
     [SerializeField] private float nominalStandoff = 0.15f;
@@ -171,7 +172,7 @@ public class BumpPipeline : MonoBehaviour
     private void OnDistance(float distance)
     {
         float height = distance < 0f ? 0f : nominalStandoff - distance;
-        float pos = terrain != null ? terrain.TraveledDistance : 0f;
+        float pos = terrainWheel != null ? terrainWheel.TraveledDistance : 0f;
 
         switch (CurrentState)
         {
@@ -252,7 +253,7 @@ public class BumpPipeline : MonoBehaviour
             return;
         }
 
-        float vBelt = Mathf.Max(0.01f, terrain != null ? terrain.LinearSpeed : 1f);
+        float terrainSpeed = Mathf.Max(0.01f, terrainWheel != null ? terrainWheel.LinearSpeed : 1f);
         float startPos = _profile[0].Pos;
         float endPos = _profile[contentLen - 1].Pos;
         float lengthM = Mathf.Max(0.001f, endPos - startPos);
@@ -270,7 +271,7 @@ public class BumpPipeline : MonoBehaviour
             yFine[i] = Mathf.Lerp(_profile[j].Height, _profile[j + 1].Height, t);
         }
 
-        float dtRoad = (lengthM / vBelt) / (gridN - 1);
+        float dtRoad = (lengthM / terrainSpeed) / (gridN - 1);
         var road = RoadProfile.FromSamples(yFine, 0f, dtRoad, Allocator.TempJob);
         var cands = QuarterCarSolver.LinSpace(cMin, cMax, cCandidates, Allocator.TempJob);
         var results = new NativeArray<SearchResult>(cCandidates, Allocator.TempJob);
@@ -332,9 +333,9 @@ public class BumpPipeline : MonoBehaviour
 
         lastBestC = _inFlight.Results[bestIdx].dampingC;
 
-        float vBelt = Mathf.Max(0.01f, terrain != null ? terrain.LinearSpeed : 1f);
+        float terrainSpeed = Mathf.Max(0.01f, terrainWheel != null ? terrainWheel.LinearSpeed : 1f);
         float distLeft = sensorLead - _inFlight.BumpLengthMeters;
-        lastPredictiveSlackMs = (distLeft / vBelt) * 1000f - lastSolveMs;
+        lastPredictiveSlackMs = (distLeft / terrainSpeed) * 1000f - lastSolveMs;
 
         // -- snapshot for visualization --
         if (_snapPeaks.IsCreated) _snapPeaks.Dispose();

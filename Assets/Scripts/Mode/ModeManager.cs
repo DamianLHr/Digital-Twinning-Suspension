@@ -43,8 +43,7 @@ public class ModeManager : MonoBehaviour
 
         // Include inactive objects so a device parked disabled in the scene is
         // still brought to the correct state for the mode.
-        var all = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include,
-                                                   FindObjectsSortMode.None);
+        var all = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include);
         for (int i = 0; i < all.Length; i++)
         {
             var mb = all[i];

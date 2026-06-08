@@ -54,7 +54,7 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     private volatile bool _needsReconnect;
     private float _reconnectAt;
 
-    private int _twinSize;
+    private readonly PicoFrameParser _parser = new PicoFrameParser();
     private readonly ConcurrentQueue<TwinData> _inbound = new ConcurrentQueue<TwinData>();
 
     private readonly Dictionary<byte, Action<SensorPacket>> _subs =
@@ -66,8 +66,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     private bool _loggedBlank;   // one-shot blank-frame diagnostic per connection
 
     // ---- lifecycle ----
-
-    private void Awake() => _twinSize = PicoProtocol.SizeOf<TwinData>();
 
     private void OnEnable() { if (autoConnect) Connect(); }
     private void OnDisable() => Disconnect();
@@ -89,6 +87,7 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
             _needsReconnect = false;
             _havePacketId = false;
             _loggedBlank = false;
+            _parser.Reset();
             _reader = new Thread(ReadLoop) { IsBackground = true, Name = "PicoSerialReader" };
             _reader.Start();
             connected = true;
@@ -122,14 +121,14 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
 
     private void ReadLoop()
     {
-        var buf = new byte[_twinSize];
+        var chunk = new byte[256];
         while (_running)
         {
             try
             {
-                if (!SyncToHeader(PicoProtocol.InHeader[0], PicoProtocol.InHeader[1])) continue;
-                if (!ReadFully(buf, _twinSize)) continue;
-                _inbound.Enqueue(PicoProtocol.BytesToStruct<TwinData>(buf));
+                int n = _port.Read(chunk, 0, chunk.Length);   // blocks up to ReadTimeout
+                for (int i = 0; i < n; i++)
+                    if (_parser.Feed(chunk[i], out TwinData frame)) _inbound.Enqueue(frame);
             }
             catch (TimeoutException) { /* no data this window — keep polling */ }
             catch (Exception)
@@ -138,28 +137,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
                 _needsReconnect = true;   // port likely dropped (e.g. USB unplug)
             }
         }
-    }
-
-    // Scan one byte at a time until the two header bytes appear in sequence.
-    private bool SyncToHeader(byte h0, byte h1)
-    {
-        int b = _port.ReadByte();
-        if (b != h0) return false;
-        int b2 = _port.ReadByte();
-        return b2 == h1;
-    }
-
-    // Read exactly len bytes (SerialPort.Read may return fewer per call).
-    private bool ReadFully(byte[] dst, int len)
-    {
-        int got = 0;
-        while (got < len)
-        {
-            int n = _port.Read(dst, got, len - got);
-            if (n <= 0) return false;
-            got += n;
-        }
-        return true;
     }
 
     // ---- main-thread pump ----
@@ -205,10 +182,10 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
         _havePacketId = true;
 
         float ts = Time.time;
-        Emit(PicoChannels.Accel, ts, AccelBytes(d.accel_x, d.accel_y, d.accel_z));
-        Emit(PicoChannels.ToF,   ts, BitConverter.GetBytes(d.distance_mm));
-        Emit(PicoChannels.Pot1,  ts, BitConverter.GetBytes(d.analog_1_raw));
-        Emit(PicoChannels.Pot2,  ts, BitConverter.GetBytes(d.analog_2_raw));
+        Emit(PicoChannels.Accel, ts, PicoChannelCodec.EncodeAccel(d.accel_x, d.accel_y, d.accel_z));
+        Emit(PicoChannels.ToF,   ts, PicoChannelCodec.EncodeToFMm(d.distance_mm));
+        Emit(PicoChannels.Pot1,  ts, PicoChannelCodec.EncodePotRaw(d.analog_1_raw));
+        Emit(PicoChannels.Pot2,  ts, PicoChannelCodec.EncodePotRaw(d.analog_2_raw));
     }
 
     // A frame with every sensor field exactly zero is non-physical (a mounted
@@ -217,15 +194,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     private static bool IsBlank(in TwinData d) =>
         d.accel_x == 0f && d.accel_y == 0f && d.accel_z == 0f &&
         d.distance_mm == 0 && d.analog_1_raw == 0 && d.analog_2_raw == 0;
-
-    private static byte[] AccelBytes(float x, float y, float z)
-    {
-        var b = new byte[12];
-        Buffer.BlockCopy(BitConverter.GetBytes(x), 0, b, 0, 4);
-        Buffer.BlockCopy(BitConverter.GetBytes(y), 0, b, 4, 4);
-        Buffer.BlockCopy(BitConverter.GetBytes(z), 0, b, 8, 4);
-        return b;
-    }
 
     private void Emit(byte channel, float ts, byte[] payload)
     {
@@ -279,9 +247,8 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
         if (_port == null || !_port.IsOpen) return;
         try
         {
-            _port.Write(PicoProtocol.OutHeader, 0, PicoProtocol.OutHeader.Length);
-            byte[] payload = PicoProtocol.StructToBytes(cmd);
-            _port.Write(payload, 0, payload.Length);
+            byte[] frame = PicoProtocol.FrameCommand(cmd);
+            _port.Write(frame, 0, frame.Length);
         }
         catch (TimeoutException) { Debug.LogWarning("[Pico] write timed out — is the device listening?"); }
         catch (Exception) { _needsReconnect = true; }

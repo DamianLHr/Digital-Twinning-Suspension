@@ -18,7 +18,7 @@ using UnityEngine;
 /// raycast + joint are the contact.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class UnsprungMass : MonoBehaviour
+public class UnsprungMass : MonoBehaviour, IModeReceiver
 {
     [Tooltip("Unsprung mass (kg). Set centrally by QuarterCarConfig.")]
     public float mass = 0.5f;
@@ -167,4 +167,12 @@ public class UnsprungMass : MonoBehaviour
     }
 
     public Vector3 GetPosition() => rb.position;
+
+    // Twinning: the real rig is the source of truth and the model mirrors it from
+    // sensor data, so make the body kinematic to stop physics fighting that.
+    public void OnModeChanged(TwinMode mode)
+    {
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        if (rb != null) rb.isKinematic = (mode == TwinMode.Twinning);
+    }
 }

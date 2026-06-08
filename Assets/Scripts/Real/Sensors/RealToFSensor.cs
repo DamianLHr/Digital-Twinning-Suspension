@@ -17,7 +17,7 @@ public class RealToFSensor : RealSensorBase
     {
         if (tofOutput == null || packet.Payload.Length < 4) return;
 
-        int mm = packet.ReadInt(0);
+        int mm = PicoChannelCodec.DecodeToFMm(packet);
         if (mm < minRangeMm || mm > maxRangeMm)
             tofOutput.PublishNoTarget();
         else

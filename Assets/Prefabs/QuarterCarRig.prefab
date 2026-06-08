@@ -126,8 +126,8 @@ Transform:
   m_GameObject: {fileID: 7947757337420642411}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
-  m_LocalPosition: {x: -103.6, y: 51.9, z: 178}
-  m_LocalScale: {x: 59.868443, y: 9.578952, z: 59.868443}
+  m_LocalPosition: {x: -99.9, y: 56, z: 178}
+  m_LocalScale: {x: 59.868443, y: 4.6055136, z: 59.868443}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6083840761844446113}
@@ -347,17 +347,21 @@ PrefabInstance:
       propertyPath: springJoint
       value: 
       objectReference: {fileID: 5143964079504177468}
+    - target: {fileID: 3588524986807801363, guid: d07d843a8265c534483d697c1898cf57, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4255571220388000494, guid: d07d843a8265c534483d697c1898cf57, type: 3}
       propertyPath: m_LocalPosition.x
       value: -67.80006
       objectReference: {fileID: 0}
     - target: {fileID: 4255571220388000494, guid: d07d843a8265c534483d697c1898cf57, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 99.8999
+      value: 134
       objectReference: {fileID: 0}
     - target: {fileID: 4255571220388000494, guid: d07d843a8265c534483d697c1898cf57, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -16.499855
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 4255571220388000494, guid: d07d843a8265c534483d697c1898cf57, type: 3}
       propertyPath: m_LocalRotation.w
@@ -451,6 +455,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5046566858940502352, guid: 4f48052d1650b6449a0b1e876951298b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5708877483653300757, guid: 4f48052d1650b6449a0b1e876951298b, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8975625221735388185, guid: 4f48052d1650b6449a0b1e876951298b, type: 3}
@@ -623,13 +631,29 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 414947255841225204, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 414947255841225204, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
       propertyPath: strokeLength
       value: 0.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 2655673425055290119, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
+      propertyPath: title
+      value: Potentiometer - Sprung
+      objectReference: {fileID: 0}
+    - target: {fileID: 2655673425055290119, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
+      propertyPath: inputMax
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 2655673425055290119, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
       propertyPath: modelTarget
       value: 
       objectReference: {fileID: 3529451476508715147}
+    - target: {fileID: 2655673425055290119, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
+      propertyPath: slideLengthLocalY
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 3275173638965382007, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -101.5
@@ -861,9 +885,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -1603657988319369251, guid: 72180a541ea8c3b4b8f14c3dc474ec7f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8233871017240358704}
-    - targetCorrespondingSourceObject: {fileID: -1603657988319369251, guid: 72180a541ea8c3b4b8f14c3dc474ec7f, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4738157318010250349}
   m_SourcePrefab: {fileID: 100100000, guid: 72180a541ea8c3b4b8f14c3dc474ec7f, type: 3}
 --- !u!4 &2604413757752328233 stripped
 Transform:
@@ -938,22 +959,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Model.TerrainWheel
   linearSpeed: 0.2
   diameter: 0.14
---- !u!114 &4738157318010250349
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2604726476047439118}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39b4f4a9ae0e5c142a6c38f637d22bf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BeltSpeedEstimator
-  speedCommand: {fileID: 3153345921789405247}
-  terrain: {fileID: 8233871017240358704}
-  accelLimit: 5
-  currentSpeed: 0
 --- !u!4 &5337267068517487928 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 72180a541ea8c3b4b8f14c3dc474ec7f, type: 3}
@@ -1195,7 +1200,7 @@ ConfigurableJoint:
     useAcceleration: 0
   m_YDrive:
     serializedVersion: 4
-    positionSpring: 200000
+    positionSpring: 27
     positionDamper: 600
     maximumForce: 3.4028233e+38
     useAcceleration: 0
@@ -1329,7 +1334,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -1833374411371988221, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -1833374411371988221, guid: 8e27d7989b33d2b47ad71033de0eb802, type: 3}
       propertyPath: samplingRate
@@ -1482,7 +1487,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5790036205152484536, guid: 06ed8764a6f2add4e9b14a2458e91c06, type: 3}
       propertyPath: m_Name
-      value: BeltActuator
+      value: TerrainWheelActuator
+      objectReference: {fileID: 0}
+    - target: {fileID: 6091065092095051154, guid: 06ed8764a6f2add4e9b14a2458e91c06, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7722802037483695480, guid: 06ed8764a6f2add4e9b14a2458e91c06, type: 3}
       propertyPath: wheel
@@ -1491,19 +1500,43 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5790036205152484536, guid: 06ed8764a6f2add4e9b14a2458e91c06, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 3858279228834254335}
   m_SourcePrefab: {fileID: 100100000, guid: 06ed8764a6f2add4e9b14a2458e91c06, type: 3}
 --- !u!114 &3153345921789405247 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -3975253681022356419, guid: 06ed8764a6f2add4e9b14a2458e91c06, type: 3}
   m_PrefabInstance: {fileID: 7140422842490166274}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 3696813170899656890}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18eecc76347aaf740a7cb0d2d961d4cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpeedCommand
+--- !u!1 &3696813170899656890 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5790036205152484536, guid: 06ed8764a6f2add4e9b14a2458e91c06, type: 3}
+  m_PrefabInstance: {fileID: 7140422842490166274}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3858279228834254335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3696813170899656890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b1116263cfe90145a717894bc4f312c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TerrainWheelSpeedDriver
+  speedCommand: {fileID: 3153345921789405247}
+  terrainWheel: {fileID: 8233871017240358704}
+  accelLimit: 5
+  currentSpeed: 0
 --- !u!4 &8144862300834021095 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1305970935896515301, guid: 06ed8764a6f2add4e9b14a2458e91c06, type: 3}
@@ -1522,13 +1555,25 @@ PrefabInstance:
       value: unsprung_potentiometer
       objectReference: {fileID: 0}
     - target: {fileID: 414947255841225204, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 414947255841225204, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
       propertyPath: strokeLength
       value: 0.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 2655673425055290119, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
+      propertyPath: inputMax
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 2655673425055290119, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
       propertyPath: modelTarget
       value: 
       objectReference: {fileID: 5023672923000606365}
+    - target: {fileID: 2655673425055290119, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
+      propertyPath: slideLengthLocalY
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 3275173638965382007, guid: 30ae46217d4938a4f884a83ccbd9fe3d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -101.4

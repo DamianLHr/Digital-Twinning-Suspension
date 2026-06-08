@@ -18,7 +18,7 @@ public class RealPotentiometer : RealSensorBase
     {
         if (positionOutput == null || packet.Payload.Length < 4) return;
 
-        int raw = packet.ReadInt(0);
+        int raw = PicoChannelCodec.DecodePotRaw(packet);
         float normalized = Mathf.Clamp01(raw / Mathf.Max(1f, adcMax));
         positionOutput.Publish(normalized * strokeLength);
     }

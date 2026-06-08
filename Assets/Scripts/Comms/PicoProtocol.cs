@@ -68,4 +68,14 @@ public static class PicoProtocol
     }
 
     public static int SizeOf<T>() where T : struct => Marshal.SizeOf<T>();
+
+    /// <summary>Frame an outbound command: OutHeader followed by the packed struct.</summary>
+    public static byte[] FrameCommand(CommandData cmd)
+    {
+        byte[] payload = StructToBytes(cmd);
+        var frame = new byte[OutHeader.Length + payload.Length];
+        Buffer.BlockCopy(OutHeader, 0, frame, 0, OutHeader.Length);
+        Buffer.BlockCopy(payload, 0, frame, OutHeader.Length, payload.Length);
+        return frame;
+    }
 }

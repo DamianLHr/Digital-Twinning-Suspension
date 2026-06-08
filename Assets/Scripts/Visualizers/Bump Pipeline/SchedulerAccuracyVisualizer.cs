@@ -6,7 +6,7 @@ using UnityEngine;
 /// assigned to each bump and WHETHER the command lands where the bump actually
 /// reaches the wheel. Two coupled views:
 ///
-///   • World tags — a label per scheduled bump that rides the drum (parented to
+///   • World tags — a label per scheduled bump that rides the terrainWheel (parented to
 ///     it, so it co-rotates with the physical bump), coloured by state
 ///     (scheduled → applied). Reads "c=NNN".
 ///   • Timeline table — recent bumps with their observed / target / applied /
@@ -21,8 +21,9 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
 {
     [Header("Wiring")]
     [SerializeField] private DampingCommandScheduler scheduler;
-    [Tooltip("The drum the tags ride on (so they co-rotate with the bumps).")]
-    [SerializeField] private TerrainWheel drum;
+    [Tooltip("The terrainWheel the tags ride on (so they co-rotate with the bumps).")]
+    [UnityEngine.Serialization.FormerlySerializedAs("drum")]
+    [SerializeField] private TerrainWheel terrainWheel;
     [Tooltip("Where a bump sits when the ToF observes it; tags spawn here.")]
     [SerializeField] private Transform tofEmitter;
     [SerializeField] private Camera viewCamera;
@@ -52,16 +53,16 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     private readonly List<Rec> _recs = new List<Rec>();
     private const int MaxRecs = 32;
 
-    // ---- world tags (parented to the drum) ----
+    // ---- world tags (parented to the terrainWheel) ----
     private class Tag { public GameObject Go; public Rec Rec; }
     private readonly Queue<Tag> _tags = new Queue<Tag>();
 
-    private GUIStyle _label, _tag;
+    private GUIStyle _label, _tag, _num;
     private bool _hasManagedRect;
     private Vector2 _managedTopLeft;
 
     // ---- layout constants ----
-    private const float Pad = 6f, HeaderH = 18f, LineH = 15f, FooterH = 16f;
+    private const float Pad = 6f, HeaderH = 18f, LineH = 16f;
 
     // ---- lifecycle ----
 
@@ -138,11 +139,11 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
 
     private void SpawnTag(Rec r)
     {
-        if (!showTags || drum == null || tofEmitter == null) return;
+        if (!showTags || terrainWheel == null || tofEmitter == null) return;
 
         var go = new GameObject("C-Tag");
         go.transform.position = tofEmitter.position;
-        go.transform.SetParent(drum.transform, true);   // ride the drum so it tracks the bump
+        go.transform.SetParent(terrainWheel.transform, true);   // ride the terrainWheel so it tracks the bump
         _tags.Enqueue(new Tag { Go = go, Rec = r });
 
         while (_tags.Count > Mathf.Max(1, maxTags))
@@ -168,7 +169,7 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     public Transform WorldAnchor => worldAnchorOverride != null ? worldAnchorOverride : transform;
     public bool FloatInWorld => floatInWorld;
     public Vector2 PanelSize => new Vector2(
-        420f, HeaderH + FooterH + Pad * 3f + LineH * (Mathf.Max(1, tableRows) + 1));
+        300f, Pad * 2f + HeaderH + LineH * (Mathf.Max(1, tableRows) + 1));
 
     public void ApplyScreenRect(Vector2 topLeft) { _managedTopLeft = topLeft; _hasManagedRect = true; }
 
@@ -196,6 +197,14 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
         }
     }
 
+    // Column colours (shared with the world tags where it makes sense).
+    private static readonly Color ColSched = new Color(1f, 0.85f, 0.30f);
+    private static readonly Color ColLive  = new Color(0.40f, 1f, 0.50f);
+    private static readonly Color ColHit   = new Color(0.50f, 0.80f, 1f);
+    private static readonly Color ColGood  = new Color(0.40f, 1f, 0.50f);
+    private static readonly Color ColWarn  = new Color(1f, 0.85f, 0.30f);
+    private static readonly Color ColBad   = new Color(1f, 0.45f, 0.40f);
+
     private void DrawTable()
     {
         Vector2 origin = _hasManagedRect ? _managedTopLeft : anchor;
@@ -203,48 +212,86 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
         var box = new Rect(origin.x, origin.y, sz.x, sz.y);
 
         var old = GUI.color;
-        GUI.color = new Color(0f, 0f, 0f, 0.7f);
+        GUI.color = new Color(0f, 0f, 0f, 0.78f);
         GUI.DrawTexture(box, Texture2D.whiteTexture);
         GUI.color = old;
 
         float x = box.x + Pad, y = box.y + Pad, w = box.width - Pad * 2f;
-        string offset = scheduler != null ? $"{scheduler.WheelOffset * 1000f:F0} mm" : "-";
-        string state  = scheduler != null ? scheduler.State.ToString() : "-";
-        GUI.Label(new Rect(x, y, w, HeaderH),
-                  $"<b>{title}</b>   offset={offset}   state={state}", _label);
-        y += HeaderH + Pad;
+        float offsetMm = scheduler != null ? scheduler.WheelOffset * 1000f : 0f;
+        string state = scheduler != null ? scheduler.State.ToString() : "-";
 
-        GUI.Label(new Rect(x, y, w, LineH),
-                  "<b>  c        obs      tgt    appliedΔ   joltΔ(resid)   v_solve→v_apply</b>", _label);
+        GUI.Label(new Rect(x, y, w, HeaderH),
+                  $"<b>{title}</b>   <color=#9cf>{state}</color>   offset {offsetMm:F0} mm", _label);
+        y += HeaderH;
+
+        // Column x-positions (fixed → real alignment regardless of font).
+        const float wStatus = 46f, wC = 56f, wApply = 78f, wErr = 76f;
+        float cStatus = x;
+        float cC      = x + 48f;
+        float cApply  = x + 116f;
+        float cErr    = x + 200f;
+
+        DrawCell(cStatus, y, wStatus, "<b>state</b>", _label, Color.white);
+        DrawCell(cC,      y, wC,      "<b>C</b>",        _num,   Color.white);
+        DrawCell(cApply,  y, wApply,  "<b>apply in</b>", _label, Color.white);
+        DrawCell(cErr,    y, wErr,    "<b>error</b>",    _label, Color.white);
         y += LineH;
+
+        if (_recs.Count == 0)
+        {
+            GUI.Label(new Rect(x, y, w, LineH), "<i>(waiting for scheduled commands…)</i>", _label);
+            return;
+        }
+
+        float now   = terrainWheel != null ? terrainWheel.TraveledDistance : 0f;
+        float speed = terrainWheel != null ? terrainWheel.LinearSpeed : 0f;
 
         int shown = Mathf.Min(tableRows, _recs.Count);
         for (int i = 0; i < shown; i++)
         {
             Rec r = _recs[_recs.Count - 1 - i];   // newest first
-            string appliedD = r.Applied ? $"{(r.AppliedPos - r.Target) * 1000f:+0.0;-0.0}" : "—";
-            string residMm, residMs;
+
+            // state
+            string st; Color stc;
+            if (r.Jolted)       { st = "HIT";   stc = ColHit; }
+            else if (r.Applied) { st = "LIVE";  stc = ColLive; }
+            else                { st = "SCHED"; stc = ColSched; }
+            DrawCell(cStatus, y, wStatus, st, _label, stc);
+
+            // C
+            DrawCell(cC, y, wC, $"{r.C:F0}", _num, Color.white);
+
+            // apply in — time until the coefficient is applied at the wheel
+            string apply;
+            if (r.Applied) apply = "applied";
+            else
+            {
+                float dist = r.Target - now;
+                if (speed > 1e-4f) { float t = dist / speed; apply = t > 0f ? $"{t:0.00} s" : "now"; }
+                else               apply = dist > 0f ? "—" : "now";
+            }
+            DrawCell(cApply, y, wApply, apply, _label, Color.white);
+
+            // error — how far the bump's actual jolt landed from the target
             if (r.Jolted)
             {
-                float resid = (r.JoltPos - r.Target) * 1000f;        // mm
-                float v = Mathf.Max(0.001f, r.Applied ? r.SpeedApply : r.SpeedSolve);
-                residMm = $"{resid:+0.0;-0.0}";
-                residMs = $"{(r.JoltPos - r.Target) / v * 1000f:+0;-0}ms";
+                float residMm = (r.JoltPos - r.Target) * 1000f;
+                float frac = Mathf.Abs(residMm) / Mathf.Max(1f, offsetMm);
+                Color ec = frac < 0.05f ? ColGood : frac < 0.15f ? ColWarn : ColBad;
+                DrawCell(cErr, y, wErr, $"{residMm:+0;-0} mm", _label, ec);
             }
-            else { residMm = "—"; residMs = ""; }
+            else DrawCell(cErr, y, wErr, "—", _label, Color.white);
 
-            string speeds = (r.Applied)
-                ? $"{r.SpeedSolve:0.00}→{r.SpeedApply:0.00}"
-                : $"{r.SpeedSolve:0.00}→…";
-
-            GUI.Label(new Rect(x, y, w, LineH),
-                $"  {r.C,5:F0}   {r.Observed * 1000f,6:F0}  {r.Target * 1000f,6:F0}    " +
-                $"{appliedD,6}     {residMm,6} {residMs,-5}   {speeds}", _label);
             y += LineH;
         }
+    }
 
-        if (_recs.Count == 0)
-            GUI.Label(new Rect(x, y, w, LineH), "  (waiting for scheduled commands…)", _label);
+    private void DrawCell(float x, float y, float w, string text, GUIStyle style, Color color)
+    {
+        Color prev = style.normal.textColor;
+        style.normal.textColor = color;
+        GUI.Label(new Rect(x, y, w, LineH), text, style);
+        style.normal.textColor = prev;
     }
 
     private void EnsureStyles()
@@ -255,5 +302,8 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
         if (_tag == null)
             _tag = new GUIStyle(GUI.skin.label)
             { fontSize = 11, richText = true, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
+        if (_num == null)
+            _num = new GUIStyle(GUI.skin.label)
+            { fontSize = 11, richText = true, alignment = TextAnchor.MiddleRight, normal = { textColor = Color.white } };
     }
 }

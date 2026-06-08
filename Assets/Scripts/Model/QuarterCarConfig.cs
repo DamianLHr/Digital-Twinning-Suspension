@@ -22,11 +22,16 @@ public class QuarterCarConfig : MonoBehaviour
     [Tooltip("Unsprung mass — the wheel/axle Rigidbody at the bottom.")]
     [Min(0.001f)] public float unsprungMassKg = 0.5f;
 
-    [Header("Spring / damper (N/m, N·s/m)")]
-    [Tooltip("Spring constant of the suspension spring.")]
-    [Min(1f)]     public float springStiffness = 20000f;
-    [Tooltip("Initial damping coefficient. Overwritten at runtime by the actuator " +
-             "as soon as the first bump is solved.")]
+    // Maps to the suspension ConfigurableJoint's yDrive:
+    //   spring constant k      → JointDrive.positionSpring
+    //   damping coefficient c  → JointDrive.positionDamper
+    //   max actuator force     → JointDrive.maximumForce
+    [Header("Spring / damper (k = N/m, c = N·s/m)")]
+    [Tooltip("Spring constant k (N/m) → yDrive.positionSpring. Distinct from the damping " +
+             "coefficient c below. Measured ≈ 27 for this suspension.")]
+    [Min(1f)]     public float springConstant = 27f;
+    [Tooltip("Damping coefficient c (N·s/m) → yDrive.positionDamper. Initial value; overwritten " +
+             "at runtime by the damping actuator once the first bump is solved.")]
     [Min(0f)]     public float initialDamping  = 600f;
     [Tooltip("Tyre vertical stiffness (between belt and unsprung mass). Pushed to the " +
              "UnsprungMass tyre joint so this is the single source of truth.")]
@@ -81,14 +86,14 @@ public class QuarterCarConfig : MonoBehaviour
             unsprung.SetTyreDrive(tyreStiffness, tyreDamping);
         }
 
-        // 2) Spring / damper
+        // 2) Spring / damper — k → positionSpring, c → positionDamper, maxForce → maximumForce
         if (springJoint != null)
         {
             var d = springJoint.yDrive;
-            d.positionSpring = springStiffness;
-            d.positionDamper = initialDamping;
+            d.positionSpring = springConstant;   // k
+            d.positionDamper = initialDamping;   // c (then driven by the damping actuator)
             if (d.maximumForce <= 0f || float.IsInfinity(d.maximumForce))
-                d.maximumForce = 1e6f;
+                d.maximumForce = 1e6f;           // max actuator force
             springJoint.yDrive = d;
         }
 
@@ -96,7 +101,7 @@ public class QuarterCarConfig : MonoBehaviour
         if (pipeline != null)
         {
             pipeline.mass      = sprungMassKg;
-            pipeline.stiffness = springStiffness;
+            pipeline.stiffness = springConstant;
             pipeline.cMin      = cMin;
             pipeline.cMax      = cMax;
         }
@@ -115,9 +120,9 @@ public class QuarterCarConfig : MonoBehaviour
 
     private void ComputeDerived()
     {
-        staticDeflectionMm   = (sprungMassKg * 9.81f / springStiffness) * 1000f;
-        naturalFreqHz        = (1f / (2f * Mathf.PI)) * Mathf.Sqrt(springStiffness / sprungMassKg);
-        criticalDamping      = 2f * Mathf.Sqrt(springStiffness * sprungMassKg);
+        staticDeflectionMm   = (sprungMassKg * 9.81f / springConstant) * 1000f;
+        naturalFreqHz        = (1f / (2f * Mathf.PI)) * Mathf.Sqrt(springConstant / sprungMassKg);
+        criticalDamping      = 2f * Mathf.Sqrt(springConstant * sprungMassKg);
         dampingRatioInitial  = initialDamping / Mathf.Max(0.001f, criticalDamping);
     }
 
