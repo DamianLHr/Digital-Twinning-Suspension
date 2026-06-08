@@ -1,0 +1,256 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO.Ports;
+using System.Threading;
+using UnityEngine;
+
+/// <summary>
+/// The serial layer for the Raspberry Pi Pico. Implements BOTH the inbound
+/// (ISensorPacketSource) and outbound (IActuatorPacketSink) coupling points, so
+/// the Real* sensors/actuators plug straight in.
+///
+///   • Reads on a BACKGROUND THREAD (blocking serial), de-frames TwinData, and
+///     enqueues it; the main thread drains the queue in Update and DEMUXes one
+///     TwinData into per-channel SensorPackets dispatched to subscribers.
+///   • Send() MUXes per-actuator commands into a single held CommandData and
+///     writes the framed struct.
+///
+/// Requires the project's API Compatibility Level set to ".NET Framework"
+/// (System.IO.Ports is not in .NET Standard). No Unity API is touched off-thread.
+/// </summary>
+[DisallowMultipleComponent]
+public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuatorPacketSink, IRealDevice
+{
+    [Header("Port")]
+    [Tooltip("e.g. /dev/ttyACM0 on Linux, COM3 on Windows.")]
+    [SerializeField] private string portName = "/dev/ttyACM0";
+    [SerializeField] private int baudRate = 115200;
+    [SerializeField] private bool autoConnect = true;
+    [SerializeField] private float reconnectInterval = 2f;
+    [SerializeField] private int readTimeoutMs = 500;
+    [SerializeField] private int writeTimeoutMs = 500;
+
+    [Header("Diagnostics (read-only)")]
+    [SerializeField] private bool connected;
+    [SerializeField] private int packetsReceived;
+    [SerializeField] private int droppedPackets;     // inferred from packet_id gaps
+    [SerializeField] private uint lastPacketId;
+
+    public bool Connected => _port != null && _port.IsOpen;
+    public int PacketsReceived => packetsReceived;
+    public int DroppedPackets => droppedPackets;
+
+    private SerialPort _port;
+    private Thread _reader;
+    private volatile bool _running;
+    private volatile bool _needsReconnect;
+    private float _reconnectAt;
+
+    private int _twinSize;
+    private readonly ConcurrentQueue<TwinData> _inbound = new ConcurrentQueue<TwinData>();
+
+    private readonly Dictionary<byte, Action<SensorPacket>> _subs =
+        new Dictionary<byte, Action<SensorPacket>>();
+
+    private readonly object _writeLock = new object();
+    private CommandData _outState;
+    private bool _havePacketId;
+
+    // ---- lifecycle ----
+
+    private void Awake() => _twinSize = PicoProtocol.SizeOf<TwinData>();
+
+    private void OnEnable() { if (autoConnect) Connect(); }
+    private void OnDisable() => Disconnect();
+
+    public bool Connect()
+    {
+        Disconnect();
+        try
+        {
+            _port = new SerialPort(portName, baudRate)
+            {
+                DtrEnable = true,
+                RtsEnable = true,
+                ReadTimeout = readTimeoutMs,
+                WriteTimeout = writeTimeoutMs
+            };
+            _port.Open();
+            _running = true;
+            _needsReconnect = false;
+            _havePacketId = false;
+            _reader = new Thread(ReadLoop) { IsBackground = true, Name = "PicoSerialReader" };
+            _reader.Start();
+            connected = true;
+            Debug.Log($"[Pico] connected to {portName} @ {baudRate}.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            connected = false;
+            Debug.LogWarning($"[Pico] connect failed: {ex.Message}");
+            ScheduleReconnect();
+            return false;
+        }
+    }
+
+    public void Disconnect()
+    {
+        _running = false;
+        if (_reader != null && _reader.IsAlive) { try { _reader.Join(200); } catch { } }
+        _reader = null;
+        if (_port != null)
+        {
+            try { if (_port.IsOpen) _port.Close(); } catch { }
+            _port.Dispose();
+            _port = null;
+        }
+        connected = false;
+    }
+
+    // ---- background read ----
+
+    private void ReadLoop()
+    {
+        var buf = new byte[_twinSize];
+        while (_running)
+        {
+            try
+            {
+                if (!SyncToHeader(PicoProtocol.InHeader[0], PicoProtocol.InHeader[1])) continue;
+                if (!ReadFully(buf, _twinSize)) continue;
+                _inbound.Enqueue(PicoProtocol.BytesToStruct<TwinData>(buf));
+            }
+            catch (TimeoutException) { /* no data this window — keep polling */ }
+            catch (Exception)
+            {
+                _running = false;
+                _needsReconnect = true;   // port likely dropped (e.g. USB unplug)
+            }
+        }
+    }
+
+    // Scan one byte at a time until the two header bytes appear in sequence.
+    private bool SyncToHeader(byte h0, byte h1)
+    {
+        int b = _port.ReadByte();
+        if (b != h0) return false;
+        int b2 = _port.ReadByte();
+        return b2 == h1;
+    }
+
+    // Read exactly len bytes (SerialPort.Read may return fewer per call).
+    private bool ReadFully(byte[] dst, int len)
+    {
+        int got = 0;
+        while (got < len)
+        {
+            int n = _port.Read(dst, got, len - got);
+            if (n <= 0) return false;
+            got += n;
+        }
+        return true;
+    }
+
+    // ---- main-thread pump ----
+
+    private void Update()
+    {
+        while (_inbound.TryDequeue(out TwinData d)) Dispatch(d);
+
+        if (_needsReconnect && autoConnect && Time.unscaledTime >= _reconnectAt)
+        {
+            connected = false;
+            Connect();
+        }
+        connected = Connected;
+    }
+
+    private void Dispatch(TwinData d)
+    {
+        packetsReceived++;
+        if (_havePacketId)
+        {
+            uint gap = d.packet_id - lastPacketId;   // unsigned: wraps correctly
+            if (gap > 1) droppedPackets += (int)(gap - 1);
+        }
+        lastPacketId = d.packet_id;
+        _havePacketId = true;
+
+        float ts = Time.time;
+        Emit(PicoChannels.Accel, ts, AccelBytes(d.accel_x, d.accel_y, d.accel_z));
+        Emit(PicoChannels.ToF,   ts, BitConverter.GetBytes(d.distance_mm));
+        Emit(PicoChannels.Pot1,  ts, BitConverter.GetBytes(d.analog_1_raw));
+        Emit(PicoChannels.Pot2,  ts, BitConverter.GetBytes(d.analog_2_raw));
+    }
+
+    private static byte[] AccelBytes(float x, float y, float z)
+    {
+        var b = new byte[12];
+        Buffer.BlockCopy(BitConverter.GetBytes(x), 0, b, 0, 4);
+        Buffer.BlockCopy(BitConverter.GetBytes(y), 0, b, 4, 4);
+        Buffer.BlockCopy(BitConverter.GetBytes(z), 0, b, 8, 4);
+        return b;
+    }
+
+    private void Emit(byte channel, float ts, byte[] payload)
+    {
+        if (_subs.TryGetValue(channel, out var handler))
+            handler?.Invoke(new SensorPacket(channel, ts, payload));
+    }
+
+    private void ScheduleReconnect()
+    {
+        _needsReconnect = true;
+        _reconnectAt = Time.unscaledTime + Mathf.Max(0.25f, reconnectInterval);
+    }
+
+    // ---- ISensorPacketSource (main thread) ----
+
+    public void Subscribe(byte channelId, Action<SensorPacket> handler)
+    {
+        _subs.TryGetValue(channelId, out var existing);
+        _subs[channelId] = existing + handler;
+    }
+
+    public void Unsubscribe(byte channelId, Action<SensorPacket> handler)
+    {
+        if (!_subs.TryGetValue(channelId, out var existing)) return;
+        var combined = existing - handler;
+        if (combined == null) _subs.Remove(channelId);
+        else _subs[channelId] = combined;
+    }
+
+    // ---- IActuatorPacketSink ----
+
+    // Each Real* actuator sends an int on its own channel; we merge them into the
+    // single CommandData frame the device expects and write it.
+    public void Send(ActuatorPacket packet)
+    {
+        if (packet.Payload == null || packet.Payload.Length < 4) return;
+        int value = BitConverter.ToInt32(packet.Payload, 0);
+
+        lock (_writeLock)
+        {
+            if (packet.ChannelId == PicoChannels.Damping)   _outState.target_steps = value;
+            else if (packet.ChannelId == PicoChannels.Belt) _outState.belt_command = value;
+            else return;
+
+            WriteCommand(_outState);
+        }
+    }
+
+    private void WriteCommand(CommandData cmd)
+    {
+        if (_port == null || !_port.IsOpen) return;
+        try
+        {
+            _port.Write(PicoProtocol.OutHeader, 0, PicoProtocol.OutHeader.Length);
+            byte[] payload = PicoProtocol.StructToBytes(cmd);
+            _port.Write(payload, 0, payload.Length);
+        }
+        catch (TimeoutException) { Debug.LogWarning("[Pico] write timed out — is the device listening?"); }
+        catch (Exception) { _needsReconnect = true; }
+    }
+}

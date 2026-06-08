@@ -7,8 +7,11 @@ using UnityEngine;
 public abstract class DigitalSensorBase : SensorBase, IDigitalDevice
 {
     [Header("Digital")]
-    [Tooltip("Seconds between samples. <= 0 derives it from samplingRate.")]
-    [SerializeField] protected float updatePeriod = 0f;
+    [Tooltip("Digital sampling rate in Hz. The project physics tick runs at 200 Hz, " +
+             "so that is the usable maximum; the effective rate is capped by the physics step.")]
+    [Range(0,200)]
+    [SerializeField] protected float samplingRate = 100f;
+    private float updatePeriod = 0f;
 
     private float _accumulator;
 

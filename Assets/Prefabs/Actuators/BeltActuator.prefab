@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.93, z: 1.865}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 30, y: 30, z: 30}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 521bbec3cf53157498ddef47f083b04d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DigitalBeltActuator
-  actuatorId: actuatordr
+  actuatorId: belt_actuator
   command: {fileID: -3975253681022356419}
   speedCommand: {fileID: -3975253681022356419}
   motor: {fileID: 7722802037483695480}
@@ -118,16 +118,18 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5790036205152484536}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb9a39b0b390dfa40ba3cc02cd02e8bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RealBeltActuator
-  actuatorId: actuatorbr
-  command: {fileID: 0}
-  channelId: 0
+  actuatorId: belt_actuator
+  command: {fileID: -3975253681022356419}
+  channelId: 11
   packetSink: {fileID: 0}
   speedCommand: {fileID: -3975253681022356419}
+  commandPerMeterPerSecond: 1000
+  currentCommand: 0
 --- !u!114 &3162091137958171544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,7 +182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WheelDriveMotor
   targetSpeed: 0
-  currentSpeed: 0
+  currentSpeed: 0.25
   accelLimit: 5
   encoderTicks: 0
   ticksPerMeter: 5000

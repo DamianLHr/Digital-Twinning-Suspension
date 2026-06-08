@@ -50,6 +50,8 @@ public class ModeManager : MonoBehaviour
             var mb = all[i];
             if (mb == null || mb is ModeManager) continue;
 
+            //Debug.Log(mb.name);
+
             if (mb is IDigitalDevice) { mb.enabled = simulating;  digitalDevices++; }
             else if (mb is IRealDevice) { mb.enabled = !simulating; realDevices++; }
 

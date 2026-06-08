@@ -24,6 +24,8 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
     [SerializeField] private BumpPipeline pipeline;
     [SerializeField] private DampingCommandScheduler scheduler;
     [SerializeField] private TerrainWheel drum;
+    [Tooltip("Optional: the Pico serial transport, for link-health diagnostics in Twinning.")]
+    [SerializeField] private PicoSerialTransport transport;
 
     [Header("Thresholds")]
     [Tooltip("Belt surface speed (m/s) below which predictive control is flagged as inactive.")]
@@ -122,6 +124,14 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
 
         if (_haveApply && _speedDeltaFrac > speedChangeFrac)
             Add(Severity.Warning, $"Belt speed changed {_speedDeltaFrac * 100f:0}% between solve and apply — C computed for a different speed.");
+
+        if (transport != null)
+        {
+            if (!transport.Connected)
+                Add(Severity.Critical, "Serial link down — no live device data.");
+            else if (transport.DroppedPackets > 0)
+                Add(Severity.Warning, $"{transport.DroppedPackets} serial packet(s) dropped (packet_id gaps).");
+        }
     }
 
     private void Add(Severity sev, string msg) => _diags.Add(new Diagnostic { Sev = sev, Message = msg });

@@ -29,7 +29,7 @@ public class ToFSensorOutput : SensorOutputBase
     /// <summary>Publish a no-target reading (out of range / nothing in the beam).</summary>
     public void PublishNoTarget()
     {
-        latestDistance = -1f;
+        //latestDistance = -1f;
         latestHit = false;
         Stamp();
         OnDistance.Invoke(-1f);

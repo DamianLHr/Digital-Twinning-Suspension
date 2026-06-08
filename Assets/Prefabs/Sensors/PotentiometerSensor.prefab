@@ -123,7 +123,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4.42254, y: 0.2213, z: 8.13}
-  m_LocalScale: {x: 0.1, y: 0.77, z: 0.1}
+  m_LocalScale: {x: 10, y: 76.99998, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7024823031191270165}
@@ -198,10 +198,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1b533e877618fb4686a94e64a580dbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DigitalPotentiometer
-  sensorId: potentiometerD
-  samplingRate: 200
+  sensorId: sprung_potentiometer
   output: {fileID: 2110451277971579452}
-  updatePeriod: 0
+  samplingRate: 125
   target: {fileID: 0}
   side: L
   restHeight: 0
@@ -218,11 +217,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 577eaa0e50c88604b82476d31a217058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RealPotentiometer
-  sensorId: potentiometerR
-  samplingRate: 100
-  output: {fileID: 0}
-  channelId: 0
+  sensorId: sprung_potentiometer
+  output: {fileID: 2110451277971579452}
+  channelId: 4
   packetSource: {fileID: 0}
+  adcMax: 4096
   strokeLength: 0.075
   mountedOn: L
   positionOutput: {fileID: 2110451277971579452}
@@ -240,15 +239,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotentiometerVisualizer
   output: {fileID: 2110451277971579452}
   nub: {fileID: 7024823031191270165}
-  slideAxis: {x: 0, y: 1, z: 0}
-  nubLowLocalPos: {x: 0, y: 0, z: 0}
-  slideLengthMeters: 0.075
+  slideLengthLocalY: 0.3
   inputMin: 0
-  inputMax: 0.075
+  inputMax: 3
   modelTarget: {fileID: 0}
   modelRestY: 0
   show: 1
-  title: Potentiometer
+  title: Potentiometer - Unsprung
   anchor: {x: 12, y: 12}
   floatInWorld: 1
   worldAnchorOverride: {fileID: 0}
@@ -282,7 +279,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PositionOutputVisualizer
   show: 1
-  title: Suspension travel
+  title: Unsprung Mass Travel
   units: m
   anchor: {x: 12, y: 12}
   plotWidth: 280

@@ -10,9 +10,6 @@ public abstract class SensorBase : MonoBehaviour
     [Header("Sensor")]
     [SerializeField] protected string sensorId = "sensor";
     [Range(1f, 200f)]
-    [Tooltip("Digital sampling rate in Hz. The project physics tick runs at 200 Hz, " +
-             "so that is the usable maximum; the effective rate is capped by the physics step.")]
-    [SerializeField] protected float samplingRate = 100f;
     [Tooltip("Shared output this sensor publishes to. A Digital* and a Real* " +
              "sensor may reference the same output; only one should be enabled.")]
     [SerializeField] protected SensorOutputBase output;

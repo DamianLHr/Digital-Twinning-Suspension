@@ -1,21 +1,23 @@
 using UnityEngine;
 
 /// <summary>
-/// MPU-6050 accelerometer. Payload layout: 3 floats accel (m/s^2),
-/// little-endian. If your firmware sends raw int16 counts instead, switch to
-/// ReadShort() and scale by gRange.
+/// MPU-6050 accelerometer over the Pico link. The transport packs the three
+/// acceleration components as little-endian floats in g; this converts to m/s²
+/// so the digital and real signals share the same units on the output.
+/// Channel: PicoChannels.Accel.
 /// </summary>
 public class RealAccelerometer : RealSensorBase
 {
+    private const float GToMs2 = 9.81f;   // 1 g -> m/s²
+
     [Header("Accelerometer (real) — MPU-6050")]
-    [SerializeField] private float gRange = 16.0f;   // +/- g  (for raw-count decode)
     [SerializeField] private AccelerometerOutput accelOutput;
 
     protected override void Decode(SensorPacket packet)
     {
         if (accelOutput == null || packet.Payload.Length < 12) return;
 
-        Vector3 a = new Vector3(packet.ReadFloat(0), packet.ReadFloat(4), packet.ReadFloat(8));
-        accelOutput.Publish(a);
+        Vector3 g = new Vector3(packet.ReadFloat(0), packet.ReadFloat(4), packet.ReadFloat(8));
+        accelOutput.Publish(g * GToMs2);
     }
 }

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5046566858940502352}
   - component: {fileID: 8975625221735388185}
+  - component: {fileID: 5708877483653300757}
   - component: {fileID: 4360113606112864284}
   - component: {fileID: 487396847347666793}
   m_Layer: 0
@@ -46,11 +47,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbdbcf6dfea4c3d469d1aa91bb84b582, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.DigitalIMU
-  sensorId: acceld
-  samplingRate: 200
-  output: {fileID: 0}
-  updatePeriod: 0
+  sensorId: sprung_accelerometer
+  output: {fileID: 4360113606112864284}
+  samplingRate: 125
   target: {fileID: 0}
+  accelOutput: {fileID: 4360113606112864284}
+--- !u!114 &5708877483653300757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2258624716562016859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6c62bc5e602b9c4d8c3834aebc3e0a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RealAccelerometer
+  sensorId: sprung_accelerometer
+  output: {fileID: 4360113606112864284}
+  channelId: 1
+  packetSource: {fileID: 0}
   accelOutput: {fileID: 4360113606112864284}
 --- !u!114 &4360113606112864284
 MonoBehaviour:
@@ -82,7 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AccelerometerOutputVisualizer
   show: 1
-  title: Accel |a|
+  title: Accel |a| - Sprung Mass
   units: "m/s\xB2"
   anchor: {x: 12, y: 12}
   plotWidth: 280

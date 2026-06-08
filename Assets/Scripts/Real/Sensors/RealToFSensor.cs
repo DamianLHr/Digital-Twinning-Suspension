@@ -1,24 +1,26 @@
 using UnityEngine;
 
 /// <summary>
-/// VL53L0X time-of-flight sensor. Payload is one little-endian float per
-/// packet: distance in metres. Negative values are reported as no-target.
+/// VL53L0X time-of-flight sensor over the Pico link. Payload is an int32 distance
+/// in MILLIMETRES; converted to metres and range-checked (40–600 mm). Out-of-range
+/// is reported as no-target. Channel: PicoChannels.ToF.
 /// </summary>
 public class RealToFSensor : RealSensorBase
 {
     [Header("ToF (real) — VL53L0X")]
-    [SerializeField] private float maxRange = 2.0f;
+    [Tooltip("Valid range in millimetres; readings outside report no-target.")]
+    [SerializeField] private float minRangeMm = 40f;
+    [SerializeField] private float maxRangeMm = 600f;
     [SerializeField] private ToFSensorOutput tofOutput;
 
     protected override void Decode(SensorPacket packet)
     {
         if (tofOutput == null || packet.Payload.Length < 4) return;
 
-        float d = packet.ReadFloat(0);
-
-        if (d < 0f || d > maxRange)
+        int mm = packet.ReadInt(0);
+        if (mm < minRangeMm || mm > maxRangeMm)
             tofOutput.PublishNoTarget();
         else
-            tofOutput.Publish(d);
+            tofOutput.Publish(mm / 1000f);   // mm -> m
     }
 }

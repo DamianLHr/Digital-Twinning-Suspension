@@ -36,6 +36,13 @@ public abstract class RealActuatorBase : ActuatorBase, IRealDevice
         _sink?.Send(ActuatorPacket.FromFloat(channelId, value));
     }
 
+    /// <summary>Transmit a single-int command on this actuator's channel (e.g. stepper
+    /// steps or a device-specific belt command).</summary>
+    protected void SendInt(int value)
+    {
+        _sink?.Send(ActuatorPacket.FromInt(channelId, value));
+    }
+
     protected abstract void Subscribe();
     protected abstract void Unsubscribe();
 }

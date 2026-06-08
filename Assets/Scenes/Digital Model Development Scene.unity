@@ -479,6 +479,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1942129323}
+  - {fileID: 1808107236}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &837503072
@@ -936,7 +937,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModeManager
   mode: 0
   digitalDevices: 7
-  realDevices: 5
+  realDevices: 7
   modeReceivers: 2
 --- !u!4 &1326029550
 Transform:
@@ -1426,6 +1427,60 @@ RectTransform:
   m_AnchoredPosition: {x: -3, y: 4.799988}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1808107235
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1808107236}
+  - component: {fileID: 1808107237}
+  m_Layer: 0
+  m_Name: Communication
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1808107236
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808107235}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 44.08603, y: 23.52137, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 837503071}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1808107237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808107235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e5a7352344c97947b21ced0f40674bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PicoSerialTransport
+  portName: COM8
+  baudRate: 115200
+  autoConnect: 1
+  reconnectInterval: 2
+  readTimeoutMs: 50
+  writeTimeoutMs: 500
+  connected: 0
+  packetsReceived: 0
+  droppedPackets: 0
+  lastPacketId: 0
 --- !u!1 &1859676735
 GameObject:
   m_ObjectHideFlags: 0
@@ -1720,6 +1775,7 @@ MonoBehaviour:
   pipeline: {fileID: 1942129324}
   scheduler: {fileID: 1942129326}
   drum: {fileID: 8832490091397412700}
+  transport: {fileID: 0}
   minBeltSpeed: 0.02
   healthyBumpSamples: 8
   speedChangeFrac: 0.2
@@ -1837,6 +1893,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: QuarterCarRig
       objectReference: {fileID: 0}
+    - target: {fileID: 2838382045657683080, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: packetSink
+      value: 
+      objectReference: {fileID: 1808107237}
+    - target: {fileID: 3111998144511523585, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: packetSource
+      value: 
+      objectReference: {fileID: 1808107237}
     - target: {fileID: 3163597733600951712, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.08
@@ -1877,10 +1941,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4003752654410717584, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: packetSink
+      value: 
+      objectReference: {fileID: 1808107237}
+    - target: {fileID: 4442631853580985652, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: packetSource
+      value: 
+      objectReference: {fileID: 1808107237}
     - target: {fileID: 7642642040356846079, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: pipeline
       value: 
       objectReference: {fileID: 1942129324}
+    - target: {fileID: 8271828204108238464, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: packetSource
+      value: 
+      objectReference: {fileID: 1808107237}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
