@@ -12,7 +12,6 @@ public class RealPotentiometer : RealSensorBase
     [SerializeField] private float adcMax = 4096f;
     [Tooltip("Physical travel at full scale (m). 6 cm slide = 0.06.")]
     [SerializeField] private float strokeLength = 0.06f;
-    [SerializeField] private string mountedOn = "L";
     [SerializeField] private PositionOutput positionOutput;
 
     protected override void Decode(SensorPacket packet)

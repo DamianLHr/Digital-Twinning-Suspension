@@ -8,7 +8,6 @@ public class DigitalPotentiometer : DigitalSensorBase
 {
     [Header("Potentiometer (digital)")]
     [SerializeField] private Transform target;          // your model class
-    [SerializeField] private string side = "L";
     [SerializeField] private float restHeight = 0f;      // equilibrium Y (m)
     [SerializeField] private PositionOutput positionOutput;
 

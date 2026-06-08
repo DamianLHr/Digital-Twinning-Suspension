@@ -31,10 +31,17 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     [SerializeField] private int readTimeoutMs = 500;
     [SerializeField] private int writeTimeoutMs = 500;
 
+    [Header("Robustness")]
+    [Tooltip("Skip frames whose every sensor field is exactly zero (a corrupt/blank packet). " +
+             "Subscribers then keep their last good value instead of glitching to zero for a " +
+             "frame. Stopgap until the root cause is found.")]
+    [SerializeField] private bool rejectBlankFrames = true;
+
     [Header("Diagnostics (read-only)")]
     [SerializeField] private bool connected;
     [SerializeField] private int packetsReceived;
     [SerializeField] private int droppedPackets;     // inferred from packet_id gaps
+    [SerializeField] private int blankFrames;        // all-zero frames skipped
     [SerializeField] private uint lastPacketId;
 
     public bool Connected => _port != null && _port.IsOpen;
@@ -56,6 +63,7 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     private readonly object _writeLock = new object();
     private CommandData _outState;
     private bool _havePacketId;
+    private bool _loggedBlank;   // one-shot blank-frame diagnostic per connection
 
     // ---- lifecycle ----
 
@@ -80,6 +88,7 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
             _running = true;
             _needsReconnect = false;
             _havePacketId = false;
+            _loggedBlank = false;
             _reader = new Thread(ReadLoop) { IsBackground = true, Name = "PicoSerialReader" };
             _reader.Start();
             connected = true;
@@ -169,6 +178,23 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
 
     private void Dispatch(TwinData d)
     {
+        // Stopgap for the intermittent all-zero frame: skip it so every subscriber
+        // holds its last good value instead of dropping to zero for a frame.
+        if (rejectBlankFrames && IsBlank(d))
+        {
+            blankFrames++;
+            if (!_loggedBlank)
+            {
+                _loggedBlank = true;   // log only the FIRST one this connection
+                Debug.LogWarning(
+                    $"[Pico] first blank (all-zero) frame — packet_id={d.packet_id}. " +
+                    (d.packet_id != 0
+                        ? "id is valid → likely a firmware sensor-read miss (zeroed data), not misframing."
+                        : "id is also zero → likely a framing/TX-timing issue (entire struct zero)."));
+            }
+            return;
+        }
+
         packetsReceived++;
         if (_havePacketId)
         {
@@ -184,6 +210,13 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
         Emit(PicoChannels.Pot1,  ts, BitConverter.GetBytes(d.analog_1_raw));
         Emit(PicoChannels.Pot2,  ts, BitConverter.GetBytes(d.analog_2_raw));
     }
+
+    // A frame with every sensor field exactly zero is non-physical (a mounted
+    // accelerometer always reads ~1 g; ToF distance is 40–600 mm), so it's a
+    // corrupt/blank packet rather than real data.
+    private static bool IsBlank(in TwinData d) =>
+        d.accel_x == 0f && d.accel_y == 0f && d.accel_z == 0f &&
+        d.distance_mm == 0 && d.analog_1_raw == 0 && d.analog_2_raw == 0;
 
     private static byte[] AccelBytes(float x, float y, float z)
     {
