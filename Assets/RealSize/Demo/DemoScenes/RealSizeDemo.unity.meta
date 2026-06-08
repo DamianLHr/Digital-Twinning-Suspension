@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 1c36bc93b835a4144adc45ef5fe893bb
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213903
+  packageName: 'Real Size: Measure and Resize with Real World Units'
+  packageVersion: 1.0.4
+  assetPath: Assets/RealSize/Demo/DemoScenes/RealSizeDemo.unity
+  uploadId: 670541

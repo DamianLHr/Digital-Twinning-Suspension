@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cbb990a7649c32e4c883d15176fb7e73
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213903
+  packageName: 'Real Size: Measure and Resize with Real World Units'
+  packageVersion: 1.0.4
+  assetPath: Assets/RealSize/Editor/RealSizeTransformInspector.cs
+  uploadId: 670541

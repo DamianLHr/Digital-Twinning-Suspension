@@ -387,7 +387,7 @@ Transform:
   m_GameObject: {fileID: 652646031}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.75, z: -5}
+  m_LocalPosition: {x: -0.99, y: 0.18, z: -0.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1519,7 +1519,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 50}
+  m_AnchoredPosition: {x: 37.3, y: 12.77002}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1859676737
@@ -1640,9 +1640,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.BumpPipeline
   tof: {fileID: 308208525}
   terrain: {fileID: 8832490091397412700}
-  nominalStandoff: 0.5884125
+  nominalStandoff: 0.04812844
   sensorLead: 0.1
-  triggerHeight: 0.005
+  triggerHeight: 0.0005
   endSamples: 5
   preRollSamples: 32
   maxProfileSamples: 1024
@@ -1945,6 +1945,18 @@ PrefabInstance:
       propertyPath: packetSink
       value: 
       objectReference: {fileID: 1808107237}
+    - target: {fileID: 4085645531404273574, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 108.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4085645531404273574, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4085645531404273574, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 13.3
+      objectReference: {fileID: 0}
     - target: {fileID: 4442631853580985652, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSource
       value: 

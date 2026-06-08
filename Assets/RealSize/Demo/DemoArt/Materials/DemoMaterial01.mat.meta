@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6e53ef1f7e63c5e4c9e93546250fa1e7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213903
+  packageName: 'Real Size: Measure and Resize with Real World Units'
+  packageVersion: 1.0.4
+  assetPath: Assets/RealSize/Demo/DemoArt/Materials/DemoMaterial01.mat
+  uploadId: 670541

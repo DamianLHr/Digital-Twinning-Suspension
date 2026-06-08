@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 48e413a8bfdf23a4f9c61442d11931d5
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213903
+  packageName: 'Real Size: Measure and Resize with Real World Units'
+  packageVersion: 1.0.4
+  assetPath: Assets/RealSize/Editor/RealSizeEditor.asmdef
+  uploadId: 670541

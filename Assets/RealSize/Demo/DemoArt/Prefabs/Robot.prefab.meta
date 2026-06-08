@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 91f2765895173ef49a8e8d589c3d88ed
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213903
+  packageName: 'Real Size: Measure and Resize with Real World Units'
+  packageVersion: 1.0.4
+  assetPath: Assets/RealSize/Demo/DemoArt/Prefabs/Robot.prefab
+  uploadId: 670541
