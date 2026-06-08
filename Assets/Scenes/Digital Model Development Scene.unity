@@ -500,8 +500,8 @@ MonoBehaviour:
   initialDamping: 600
   tyreStiffness: 200000
   tyreDamping: 600
-  cMin: 50
-  cMax: 3000
+  cMin: 0.02
+  cMax: 20
   sprung: {fileID: 923035447}
   unsprung: {fileID: 499001053}
   springJoint: {fileID: 923035446}
@@ -1668,8 +1668,8 @@ MonoBehaviour:
   cooldownSamples: 16
   mass: 0.1304
   stiffness: 27
-  cMin: 50
-  cMax: 3000
+  cMin: 0.02
+  cMax: 20
   cCandidates: 256
   solverSteps: 1500
   solverDt: 0.001
@@ -1907,6 +1907,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 710200462119749779, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.127
+      objectReference: {fileID: 0}
+    - target: {fileID: 710200462119749779, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.318
+      objectReference: {fileID: 0}
     - target: {fileID: 1168382237094408235, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Name
       value: QuarterCarRig
