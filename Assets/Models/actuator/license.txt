@@ -1,0 +1,11 @@
+Model Information:
+* title:	F25 With Quater Turn Actuator
+* source:	https://sketchfab.com/3d-models/f25-with-quater-turn-actuator-646ac943efcc4bd3a723b069cfee767e
+* author:	sadaoo (https://sketchfab.com/sadaoo)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "F25 With Quater Turn Actuator" (https://sketchfab.com/3d-models/f25-with-quater-turn-actuator-646ac943efcc4bd3a723b069cfee767e) by sadaoo (https://sketchfab.com/sadaoo) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
