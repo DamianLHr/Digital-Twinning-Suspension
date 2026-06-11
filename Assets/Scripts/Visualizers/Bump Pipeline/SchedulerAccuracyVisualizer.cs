@@ -43,6 +43,15 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     [Tooltip("How many recent bumps the table shows.")]
     [SerializeField] private int tableRows = 8;
 
+    [Header("Jolt matching")]
+    [Tooltip("A jolt confirms a command only if it lands within this fraction of the wheel offset " +
+             "from the command's target. Rejects coincident jolts from OTHER bumps that otherwise " +
+             "mis-pair each command with a jolt ~one offset away.")]
+    [Range(0.05f, 0.9f)]
+    [SerializeField] private float joltMatchFraction = 0.3f;
+    [Tooltip("Fallback match tolerance (m) used when the wheel offset isn't known yet.")]
+    [SerializeField] private float fallbackMatchTol = 0.05f;
+
     // ---- per-bump record ----
     private class Rec
     {
@@ -112,15 +121,22 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
 
     private void OnJolt(float joltPos)
     {
-        // Attribute the jolt to the scheduled bump whose target is closest to it.
+        // Confirm a command only with a jolt that lands within a tolerance window of
+        // its expected arrival (Target). Without this gate the nearest-Target matcher
+        // pairs each command with a coincident jolt from ANOTHER bump ~one wheelOffset
+        // away (a downstream-sensor artifact), reporting a bogus error ≈ −offset.
+        float offset = scheduler != null ? scheduler.WheelOffset : 0f;
+        float tol = offset > 1e-4f ? joltMatchFraction * offset : fallbackMatchTol;
+
         Rec best = null; float bestD = float.MaxValue;
         for (int i = 0; i < _recs.Count; i++)
         {
             if (_recs[i].Jolted) continue;
             float d = Mathf.Abs(_recs[i].Target - joltPos);
-            if (d < bestD) { bestD = d; best = _recs[i]; }
+            if (d <= tol && d < bestD) { bestD = d; best = _recs[i]; }
         }
         if (best != null) { best.Jolted = true; best.JoltPos = joltPos; }
+        // else: jolt from an untracked / other bump — ignored.
     }
 
     private Rec NearestByTarget(float target, bool requireUnapplied)

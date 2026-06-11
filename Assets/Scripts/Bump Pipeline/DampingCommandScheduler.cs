@@ -66,6 +66,18 @@ public class DampingCommandScheduler : MonoBehaviour
              "jolt-based fallback and the prime distance.")]
     [SerializeField] private float fallbackExpectedOffset = 0.1f;
 
+    [Header("Application timing (CTRL-1)")]
+    [Tooltip("Apply each coefficient as EARLY as possible — right after the previous bump clears " +
+             "the wheel — to give the real damping motor maximum time to slew. Never changes C " +
+             "mid-bump. Off = apply a fixed lead before arrival instead.")]
+    [SerializeField] private bool applyAsEarlyAsPossible = true;
+    [Tooltip("Used only when NOT applying as-early-as-possible: belt distance before the bump's " +
+             "arrival at which to apply (m). 0 = apply exactly at arrival (old behaviour).")]
+    [SerializeField] private float applyLeadMeters = 0.05f;
+    [Tooltip("Belt distance a bump occupies at the wheel. The previous bump is treated as cleared " +
+             "this far past its arrival, after which the next coefficient may be applied.")]
+    [SerializeField] private float bumpClearanceMeters = 0.03f;
+
     [Header("Diagnostics (read-only)")]
     public CalibState State = CalibState.WaitingForObservation;
     [SerializeField] private float wheelOffset;        // computed / measured / manual
@@ -92,6 +104,7 @@ public class DampingCommandScheduler : MonoBehaviour
     private float _firstObservationPos;
     private bool _firstObservationCaptured;
     private float _enableTravel;        // belt travel at enable, for the prime/settle gate
+    private float _prevClearPos;        // belt pos at which the last-applied bump clears the wheel
 
     private void OnEnable()
     {
@@ -99,6 +112,7 @@ public class DampingCommandScheduler : MonoBehaviour
         if (accel != null) accel.OnAcceleration.AddListener(OnAcceleration);
 
         _enableTravel = terrainWheel != null ? terrainWheel.TraveledDistance : 0f;
+        _prevClearPos = _enableTravel;
 
         if (manualWheelOffset > 0f)
         {
@@ -149,6 +163,7 @@ public class DampingCommandScheduler : MonoBehaviour
 
         wheelOffset = ExpectedOffset();
         State = CalibState.Calibrated;
+        _prevClearPos = terrainWheel.TraveledDistance;
         Debug.Log($"[Scheduler] geometric calibration: wheelOffset = {wheelOffset * 1000f:F1} mm " +
                   $"({360f - sensorAngleBehindDeg:F0}° of a {Circumference() * 1000f:F0} mm/rev drum).");
     }
@@ -241,6 +256,7 @@ public class DampingCommandScheduler : MonoBehaviour
 
         wheelOffset = candidate;
         State = CalibState.Calibrated;
+        _prevClearPos = terrainWheel != null ? terrainWheel.TraveledDistance : _prevClearPos;
         Debug.Log($"[Scheduler] jolt calibration: wheelOffset = {wheelOffset * 1000f:F1} mm " +
                   $"(phase {phaseDeg:F0}°, expected ~{expectedDeg:F0}°).");
     }
@@ -254,27 +270,36 @@ public class DampingCommandScheduler : MonoBehaviour
 
         float now = terrainWheel.TraveledDistance;
 
-        // Apply all matured commands. Last-write-wins if several mature this tick.
-        int popped = 0;
-        for (int i = 0; i < _pending.Count; i++)
+        // Apply commands in arrival order, each as EARLY as allowed: as soon as the
+        // previous bump has cleared the wheel (so we never change C mid-bump) — which
+        // gives the real damping motor the whole inter-bump gap to slew. `TargetPos`
+        // stays the expected ARRIVAL (the error/accuracy reference); only the moment
+        // we command the damper moves earlier.
+        while (_pending.Count > 0)
         {
-            if (_pending[i].TargetPos > now) break;
-            if (dampingCommand != null) dampingCommand.Publish(_pending[i].C);
-            lastAppliedC = _pending[i].C;
+            PendingCommand cmd = _pending[0];
+
+            float applyAt = applyAsEarlyAsPossible
+                ? _prevClearPos                      // right after the previous bump cleared
+                : cmd.TargetPos - applyLeadMeters;   // or a fixed lead before arrival
+            applyAt = Mathf.Min(applyAt, cmd.TargetPos);   // never later than arrival
+
+            if (now < applyAt) break;                // not yet — later commands are even further out
+
+            if (dampingCommand != null) dampingCommand.Publish(cmd.C);
+            lastAppliedC = cmd.C;
             lastAppliedAtPos = now;
             OnCommandApplied.Invoke(new AppliedInfo
             {
-                TargetPos    = _pending[i].TargetPos,
+                TargetPos    = cmd.TargetPos,
                 AppliedPos   = now,
-                C            = _pending[i].C,
-                SpeedAtSolve = _pending[i].SpeedAtSolve,
+                C            = cmd.C,
+                SpeedAtSolve = cmd.SpeedAtSolve,
                 SpeedAtApply = terrainWheel.LinearSpeed
             });
-            popped++;
-        }
-        if (popped > 0)
-        {
-            _pending.RemoveRange(0, popped);
+
+            _prevClearPos = cmd.TargetPos + bumpClearanceMeters;   // this bump clears here
+            _pending.RemoveAt(0);
             queueDepth = _pending.Count;
         }
     }

@@ -935,7 +935,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c34904dea21a9b84ab2abf031f4b87dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModeManager
-  mode: 0
+  mode: 1
   digitalDevices: 6
   realDevices: 7
   modeReceivers: 4
@@ -1738,6 +1738,9 @@ MonoBehaviour:
   primeRevolutions: 1.25
   offsetToleranceDeg: 45
   fallbackExpectedOffset: 0.1
+  applyAsEarlyAsPossible: 1
+  applyLeadMeters: 0
+  bumpClearanceMeters: 0
   State: 0
   wheelOffset: 0
   queueDepth: 0
@@ -1778,6 +1781,8 @@ MonoBehaviour:
   floatInWorld: 0
   worldAnchorOverride: {fileID: 0}
   tableRows: 8
+  joltMatchFraction: 0.3
+  fallbackMatchTol: 0.05
 --- !u!114 &1942129328
 MonoBehaviour:
   m_ObjectHideFlags: 0
