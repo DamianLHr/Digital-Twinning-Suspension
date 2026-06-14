@@ -264,7 +264,7 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
         GUI.DrawTexture(new Rect(x + pad, y + pad, plotWidth, plotHeight), _costTex);
         string costFooter = _hasCost
             ? $"damping sweep: {_candidateCount} candidates, c={_cMinSeen:F0}..{_cMaxSeen:F0}\n" +
-              $"best c = <color=#7f7>{_bestC:F2}</color>   peak={_bestPeak:F2} m/s²   rms={_bestRms:F2} m/s²"
+              $"best c = <color=#7f7>{_bestC:F2}</color>   peak={_bestPeak / 9.81f:F2} g   rms={_bestRms / 9.81f:F2} g"
             : "damping sweep: (waiting for first solve)";
         GUI.Label(new Rect(x + pad, y + pad + plotHeight + 2, plotWidth, footerH),
                   costFooter, _label);

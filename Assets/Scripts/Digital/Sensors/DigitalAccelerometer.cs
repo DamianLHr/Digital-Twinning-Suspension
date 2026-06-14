@@ -4,9 +4,9 @@ using UnityEngine;
 /// Simulated accelerometer, generic over any Rigidbody (the sprung mass OR the
 /// unsprung mass — both have Rigidbodies). Computes PROPER acceleration directly
 /// from the assigned Rigidbody's velocity (specific force = kinematic
-/// acceleration − gravity, so it reads ~+9.81 m/s² up at rest), so the digital
-/// signal is interchangeable with the real MPU-6050 and matches the scheduler's
-/// gravity baseline. Mount one per mass and point each at its own Rigidbody.
+/// acceleration − gravity) and publishes it in g (~+1 g up at rest), so the
+/// digital signal is interchangeable with the real MPU-6050. Mount one per mass
+/// and point each at its own Rigidbody.
 /// </summary>
 public class DigitalAccelerometer : DigitalSensorBase
 {
@@ -48,6 +48,7 @@ public class DigitalAccelerometer : DigitalSensorBase
     protected override void Sample()
     {
         if (target == null || accelOutput == null) return;
-        accelOutput.Publish(_properAccel);
+        // Publish in g (specific force ÷ gravity) to match the MPU-6050: ~1 g up at rest.
+        accelOutput.Publish(_properAccel / Mathf.Max(0.001f, Physics.gravity.magnitude));
     }
 }

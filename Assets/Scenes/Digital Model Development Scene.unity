@@ -589,6 +589,7 @@ GameObject:
   m_Component:
   - component: {fileID: 837503071}
   - component: {fileID: 837503072}
+  - component: {fileID: 837503073}
   m_Layer: 0
   m_Name: Orchestrator
   m_TagString: Untagged
@@ -611,6 +612,7 @@ Transform:
   m_Children:
   - {fileID: 1942129323}
   - {fileID: 1808107236}
+  - {fileID: 973824721}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &837503072
@@ -632,7 +634,7 @@ MonoBehaviour:
   tyreStiffness: 200000
   tyreDamping: 600
   cMin: 0.02
-  cMax: 20
+  cMax: 5
   sprung: {fileID: 923035447}
   unsprung: {fileID: 499001053}
   springJoint: {fileID: 923035446}
@@ -641,6 +643,21 @@ MonoBehaviour:
   naturalFreqHz: 2.290146
   criticalDamping: 3.752759
   dampingRatioInitial: 159.88237
+--- !u!114 &837503073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 837503069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4213f87fd388ae145a4922bd5b143eda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DampingPolicySelector
+  policy: 0
+  predictive: {fileID: 1942129326}
+  constant: {fileID: 1942129329}
 --- !u!1001 &907202037
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -738,6 +755,89 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29af404525cbf2e4196e5f2c6b4915c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SprungMass
+--- !u!1 &973824720
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 973824721}
+  - component: {fileID: 973824722}
+  - component: {fileID: 973824723}
+  m_Layer: 0
+  m_Name: Diagnostics
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &973824721
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973824720}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 837503071}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &973824722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973824720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: deccd1534e1bdd74cb286cd65973a206, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RunDataRecorder
+  accel: {fileID: 775742415}
+  position: {fileID: 8832490091397412692}
+  dampingCommand: {fileID: 7215020815612586732}
+  pipeline: {fileID: 1942129324}
+  scheduler: {fileID: 1942129326}
+  terrainWheel: {fileID: 8832490091397412700}
+  gravityBaseline: 1
+  joltMatchFraction: 0.3
+  assetsSubfolder: DiagnosticsData
+  recording: 0
+  rowsWritten: 0
+  bumpsRecorded: 0
+  lastPath: C:/Users/Damyan's laptop/AppData/LocalLow/DefaultCompany/Digital Twinnning
+    Suspension\pred_Predictive_timeseries.csv
+--- !u!114 &973824723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973824720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a22b81b20ea2dfb45ab56a7b3cc98cf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScenarioRunner
+  policySelector: {fileID: 837503073}
+  constantPolicy: {fileID: 1942129329}
+  recorder: {fileID: 973824722}
+  speedCommand: {fileID: 6995205313120960916}
+  policy: 0
+  constantC: 3
+  beltSpeed: 0.15
+  warmupSeconds: 4
+  collectSeconds: 30
+  runName: pred
+  modeTag: Simulating
+  running: 0
 --- !u!1 &993014679
 GameObject:
   m_ObjectHideFlags: 0
@@ -2004,6 +2104,7 @@ GameObject:
   - component: {fileID: 1942129326}
   - component: {fileID: 1942129327}
   - component: {fileID: 1942129328}
+  - component: {fileID: 1942129329}
   m_Layer: 0
   m_Name: BumpPipeline
   m_TagString: Untagged
@@ -2040,8 +2141,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.BumpPipeline
   tof: {fileID: 308208525}
   terrainWheel: {fileID: 8832490091397412700}
-  nominalStandoff: 0.04812844
-  sensorLead: 0.1
+  nominalStandoff: 0.05501598
+  sensorLead: 0.33
   triggerHeight: 0.0005
   endSamples: 5
   preRollSamples: 32
@@ -2051,10 +2152,11 @@ MonoBehaviour:
   mass: 0.1304
   stiffness: 27
   cMin: 0.02
-  cMax: 20
+  cMax: 5
   cCandidates: 256
   solverSteps: 1500
   solverDt: 0.001
+  dampingRmsWeight: 0
   CurrentState: 1
   bumpsSeen: 0
   lastSolveMs: 0
@@ -2114,8 +2216,8 @@ MonoBehaviour:
   sensorAngleBehindDeg: 90
   useGeometricOffset: 1
   manualWheelOffset: 0
-  joltThreshold: 2
-  gravityBaseline: 9.81
+  joltThreshold: 0.2
+  gravityBaseline: 1
   minCalibrationSpeed: 0.02
   primeRevolutions: 1.25
   offsetToleranceDeg: 45
@@ -2155,6 +2257,7 @@ MonoBehaviour:
   viewCamera: {fileID: 652646033}
   showTags: 1
   maxTags: 12
+  tagMergeDistance: 0.02
   tagScheduled: {r: 1, g: 0.85, b: 0.3, a: 1}
   tagApplied: {r: 0.4, g: 1, b: 0.5, a: 1}
   show: 1
@@ -2189,6 +2292,20 @@ MonoBehaviour:
   anchor: {x: 12, y: 120}
   floatInWorld: 0
   worldAnchorOverride: {fileID: 0}
+--- !u!114 &1942129329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942129322}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aedac52045523d14ebbc5834a4c27e70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConstantDampingPolicy
+  dampingCommand: {fileID: 7215020815612586732}
+  constantC: 3
 --- !u!4 &2062170262 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3529451476508715147, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
@@ -2325,6 +2442,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: QuarterCarRig
       objectReference: {fileID: 0}
+    - target: {fileID: 1636875268915002508, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2019003965473183762, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -2389,6 +2510,14 @@ PrefabInstance:
       propertyPath: packetSink
       value: 
       objectReference: {fileID: 1808107237}
+    - target: {fileID: 4085645531404273574, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 115.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4085645531404273574, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 4272721556144124586, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Mass
       value: 0.0702
@@ -2397,6 +2526,14 @@ PrefabInstance:
       propertyPath: packetSource
       value: 
       objectReference: {fileID: 1808107237}
+    - target: {fileID: 4576016819486989078, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.325
+      objectReference: {fileID: 0}
+    - target: {fileID: 4576016819486989078, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.115
+      objectReference: {fileID: 0}
     - target: {fileID: 6002097869086498077, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSource
       value: 
@@ -2433,6 +2570,17 @@ PrefabInstance:
       addedObject: {fileID: 1669309573}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+--- !u!114 &8832490091397412692 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3727834554778198217, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+  m_PrefabInstance: {fileID: 8832490091397412691}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6a913ea80bed66428bf5f24b7c943c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PositionOutput
 --- !u!114 &8832490091397412700 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8233871017240358704, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}

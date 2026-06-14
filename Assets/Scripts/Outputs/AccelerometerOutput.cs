@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Linear acceleration of the sprung mass (m/s^2).</summary>
+/// <summary>Proper acceleration of the mass, in g (~1 g up at rest).</summary>
 public class AccelerometerOutput : SensorOutputBase
 {
     [SerializeField] private Vector3 latestAccel;

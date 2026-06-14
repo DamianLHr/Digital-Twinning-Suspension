@@ -31,6 +31,10 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     [Header("World tags")]
     [SerializeField] private bool showTags = true;
     [SerializeField] private int maxTags = 12;
+    [Tooltip("A new bump whose observed PHASE (belt-travel mod one revolution) is within this many " +
+             "metres of an existing tag is the SAME physical bump coming round again — update that " +
+             "tag instead of spawning a duplicate. Scale-independent (belt-travel metres).")]
+    [SerializeField] private float tagMergeDistance = 0.02f;
     [SerializeField] private Color tagScheduled = new Color(1f, 0.85f, 0.3f, 1f);
     [SerializeField] private Color tagApplied   = new Color(0.4f, 1f, 0.5f, 1f);
 
@@ -157,6 +161,21 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     {
         if (!showTags || terrainWheel == null || tofEmitter == null) return;
 
+        // Dedup by the bump's observed PHASE on the drum (observedPos modulo one
+        // revolution). The same physical bump returns to the ToF at the same phase
+        // every revolution, so refresh that tag's C instead of spawning a duplicate.
+        // Phase is in belt-travel metres → independent of the drum transform's scale.
+        float circ = Mathf.PI * terrainWheel.Diameter;
+        float phase = circ > 1e-4f ? Mathf.Repeat(r.Observed, circ) : r.Observed;
+        foreach (var t in _tags)
+        {
+            if (t.Go == null) continue;
+            float tp = circ > 1e-4f ? Mathf.Repeat(t.Rec.Observed, circ) : t.Rec.Observed;
+            float d = Mathf.Abs(phase - tp);
+            if (circ > 1e-4f) d = Mathf.Min(d, circ - d);   // wrap at the revolution seam
+            if (d <= tagMergeDistance) { t.Rec = r; return; }
+        }
+
         var go = new GameObject("C-Tag");
         go.transform.position = tofEmitter.position;
         go.transform.SetParent(terrainWheel.transform, true);   // ride the terrainWheel so it tracks the bump
@@ -209,7 +228,7 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
             if (sp.z <= 0f) continue;   // behind camera
             var gp = new Vector2(sp.x - 28f, Screen.height - sp.y - 8f);
             _tag.normal.textColor = t.Rec.Applied ? tagApplied : tagScheduled;
-            GUI.Label(new Rect(gp.x, gp.y, 70f, 16f), $"c={t.Rec.C:F0}", _tag);
+            GUI.Label(new Rect(gp.x - 6f, gp.y, 88f, 16f), $"c={t.Rec.C:F3}", _tag);
         }
     }
 
@@ -275,7 +294,7 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
             DrawCell(cStatus, y, wStatus, st, _label, stc);
 
             // C
-            DrawCell(cC, y, wC, $"{r.C:F0}", _num, Color.white);
+            DrawCell(cC, y, wC, $"{r.C:F3}", _num, Color.white);
 
             // apply in — time until the coefficient is applied at the wheel
             string apply;

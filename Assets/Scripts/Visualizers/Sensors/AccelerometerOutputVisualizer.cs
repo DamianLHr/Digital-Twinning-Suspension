@@ -5,16 +5,20 @@ public class AccelerometerOutputVisualizer : SensorOutputVisualizerBase
 {
     [Header("Source")]
     [SerializeField] private AccelerometerOutput output;
+    [Tooltip("Rest reading subtracted so the plot shows DYNAMIC acceleration around 0 instead of " +
+             "the constant ~1 g gravity offset. In g, so this is 1.")]
+    [SerializeField] private float gravityBaseline = 1.0f;
 
     private void Reset()
     {
-        title = "Accel |a|";
-        units = "m/s\u00b2";
+        title = "Accel (vert)";
+        units = "g";
         traceColor = new Color(1f, 0.55f, 0.40f, 1f);
     }
 
     protected override void Subscribe()
     {
+        units = "g";   // this sensor is fixed in g — override any stale serialized unit
         if (output == null) output = GetComponent<AccelerometerOutput>();
         if (output != null) output.OnAcceleration.AddListener(OnAcceleration);
     }
@@ -26,6 +30,8 @@ public class AccelerometerOutputVisualizer : SensorOutputVisualizerBase
 
     private void OnAcceleration(Vector3 a)
     {
-        Push(a.magnitude);
+        // Vertical proper acceleration with gravity removed → fluctuates around 0 (in g),
+        // not pinned at ~1 g. (Vertical is what the bumps drive.)
+        Push(a.y - gravityBaseline);
     }
 }

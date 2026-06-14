@@ -46,11 +46,11 @@ public class DampingCommandScheduler : MonoBehaviour
     [Tooltip("If you already know the sensor-to-wheel belt offset, set it here and all " +
              "calibration is skipped. Leave at 0 to compute/measure it.")]
     [SerializeField] private float manualWheelOffset = 0f;
-    [Tooltip("Acceleration magnitude (m/s^2 above gravity baseline) that counts as a jolt.")]
-    [SerializeField] private float joltThreshold = 2.0f;
-    [Tooltip("Gravity baseline subtracted before threshold check. Proper acceleration " +
-             "reads ~9.81 up at rest, so the baseline magnitude is 9.81.")]
-    [SerializeField] private float gravityBaseline = 9.81f;
+    [Tooltip("Acceleration (in g, above the gravity baseline) that counts as a jolt. ~0.2 g.")]
+    [SerializeField] private float joltThreshold = 0.2f;
+    [Tooltip("Rest reading subtracted before the threshold check. Acceleration is in g, so a " +
+             "mounted sensor reads ~1 g at rest → baseline = 1.")]
+    [SerializeField] private float gravityBaseline = 1.0f;
 
     [Header("Calibration robustness")]
     [Tooltip("Belt surface speed (m/s) below which observations/jolts are ignored.")]

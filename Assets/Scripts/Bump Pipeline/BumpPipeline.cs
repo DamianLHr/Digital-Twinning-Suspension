@@ -52,6 +52,11 @@ public class BumpPipeline : MonoBehaviour
     [SerializeField] private int cCandidates = 256;
     [SerializeField] private int solverSteps = 1500;
     [SerializeField] private float solverDt = 0.001f;
+    [Tooltip("Comfort cost minimised per bump = peak + (this λ)·RMS sprung acceleration.\n" +
+             "λ = 0  → pure PEAK (best-validated for isolated bumps; but drives c very low → ringing).\n" +
+             "λ large → weights RMS / ride-feel (penalises the underdamped ringing of continuous " +
+             "roughness, raises the chosen c toward critical). No jerk term by design.")]
+    [Min(0f)] public float dampingRmsWeight = 1.0f;
 
     [Header("Diagnostics (read-only)")]
     public State CurrentState = State.Idle;
@@ -317,14 +322,17 @@ public class BumpPipeline : MonoBehaviour
         lastSolveMs = (Time.realtimeSinceStartup - _inFlight.StartTime) * 1000f;
 
         int bestIdx = 0;
-        float bestPeak = float.MaxValue, bestRms = 0f;
+        float bestPeak = float.MaxValue, bestRms = 0f, bestCost = float.MaxValue;
         float peakMin = float.MaxValue, peakMax = float.MinValue;
         float cMinSeen = float.MaxValue, cMaxSeen = float.MinValue;
 
         for (int i = 0; i < _inFlight.Results.Length; i++)
         {
             var r = _inFlight.Results[i];
-            if (r.peakAccel < bestPeak) { bestPeak = r.peakAccel; bestRms = r.rmsAccel; bestIdx = i; }
+            // Comfort cost: peak acceleration plus a weighted RMS term (no jerk term —
+            // a positive jerk reward would make an active damper increase jerk).
+            float cost = r.peakAccel + dampingRmsWeight * r.rmsAccel;
+            if (cost < bestCost) { bestCost = cost; bestPeak = r.peakAccel; bestRms = r.rmsAccel; bestIdx = i; }
             if (r.peakAccel < peakMin) peakMin = r.peakAccel;
             if (r.peakAccel > peakMax) peakMax = r.peakAccel;
             if (r.dampingC < cMinSeen) cMinSeen = r.dampingC;
