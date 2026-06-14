@@ -307,10 +307,12 @@ public class BumpPipeline : MonoBehaviour
             Road = road,
             StartTime = Time.realtimeSinceStartup,
             BumpLengthMeters = bumpLengthMeters,
-            // Trailing-edge belt position at capture time. This is the accurate
-            // observation coordinate: unlike sampling TraveledDistance when the
-            // solve completes, it carries NO async solve latency.
-            ObservedBeltPos = endPos
+            // LEADING-edge belt position. The accelerometer jolt fires when the bump's
+            // leading edge contacts the wheel, so referencing the schedule to the leading
+            // edge makes target = the next contact (error ≈ 0). Using the trailing edge
+            // instead landed target ~one bump-length late. Captured at BeginBump → still
+            // latency-free (no async solve-completion drift).
+            ObservedBeltPos = _leadingEdgePos
         };
     }
 

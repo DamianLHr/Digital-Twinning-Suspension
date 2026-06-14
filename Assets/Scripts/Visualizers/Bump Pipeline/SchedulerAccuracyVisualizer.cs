@@ -49,10 +49,11 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
 
     [Header("Jolt matching")]
     [Tooltip("A jolt confirms a command only if it lands within this fraction of the wheel offset " +
-             "from the command's target. Rejects coincident jolts from OTHER bumps that otherwise " +
-             "mis-pair each command with a jolt ~one offset away.")]
-    [Range(0.05f, 0.9f)]
-    [SerializeField] private float joltMatchFraction = 0.3f;
+             "from the command's target. Keep the window NARROWER than the gap between bumps " +
+             "(circumference ÷ bump count) or it can grab a neighbouring bump's jolt. 0.1 of a " +
+             "330 mm offset = 33 mm window.")]
+    [Range(0.02f, 0.9f)]
+    [SerializeField] private float joltMatchFraction = 0.1f;
     [Tooltip("Fallback match tolerance (m) used when the wheel offset isn't known yet.")]
     [SerializeField] private float fallbackMatchTol = 0.05f;
 
@@ -176,8 +177,21 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
             if (d <= tagMergeDistance) { t.Rec = r; return; }
         }
 
+        // Place the tag where the bump ACTUALLY is now, not at the live ToF. The bump's
+        // leading edge passed the ToF a moment ago (capture + solve travel), so the drum
+        // has since rotated by (now − observed); rotate the ToF point forward by that
+        // angle around the drum axis so the tag lands on the bump instead of behind it.
+        Vector3 spawnPos = tofEmitter.position;
+        if (circ > 1e-4f)
+        {
+            float dAngle = (terrainWheel.TraveledDistance - r.Observed) / circ * 360f;
+            Vector3 axis = terrainWheel.transform.TransformDirection(Vector3.back);   // drum spins about local -Z
+            Vector3 center = terrainWheel.transform.position;
+            spawnPos = Quaternion.AngleAxis(dAngle, axis) * (tofEmitter.position - center) + center;
+        }
+
         var go = new GameObject("C-Tag");
-        go.transform.position = tofEmitter.position;
+        go.transform.position = spawnPos;
         go.transform.SetParent(terrainWheel.transform, true);   // ride the terrainWheel so it tracks the bump
         _tags.Enqueue(new Tag { Go = go, Rec = r });
 

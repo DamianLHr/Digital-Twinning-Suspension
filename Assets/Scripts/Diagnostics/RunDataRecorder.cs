@@ -33,8 +33,10 @@ public class RunDataRecorder : MonoBehaviour
     [Tooltip("Rest reading (g) subtracted from accel.y to get the bump's dynamic vertical accel. " +
              "Acceleration is in g, so this is 1.")]
     [SerializeField] private float gravityBaseline = 1.0f;
-    [Tooltip("A jolt is attributed to a bump only within this fraction of the wheel offset of its target.")]
-    [SerializeField] private float joltMatchFraction = 0.3f;
+    [Tooltip("A jolt is attributed to a bump only within this fraction of the wheel offset of its " +
+             "target. Keep narrower than the gap between bumps (circumference ÷ bump count) or it " +
+             "can grab a neighbour's jolt.")]
+    [SerializeField] private float joltMatchFraction = 0.1f;
 
     [Header("Output")]
     [Tooltip("Subfolder UNDER Assets to write CSVs into (Editor only) — keeps the data in the " +

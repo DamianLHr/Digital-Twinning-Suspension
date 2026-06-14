@@ -630,7 +630,7 @@ MonoBehaviour:
   sprungMassKg: 0.1304
   unsprungMassKg: 0.0702
   springConstant: 27
-  initialDamping: 600
+  initialDamping: 3
   tyreStiffness: 200000
   tyreDamping: 600
   cMin: 0.02
@@ -642,7 +642,7 @@ MonoBehaviour:
   staticDeflectionMm: 47.37867
   naturalFreqHz: 2.290146
   criticalDamping: 3.752759
-  dampingRatioInitial: 159.88237
+  dampingRatioInitial: 0.79941183
 --- !u!114 &837503073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -831,7 +831,7 @@ MonoBehaviour:
   recorder: {fileID: 973824722}
   speedCommand: {fileID: 6995205313120960916}
   policy: 0
-  constantC: 3
+  constantC: 0.01
   beltSpeed: 0.15
   warmupSeconds: 4
   collectSeconds: 30
@@ -2222,7 +2222,7 @@ MonoBehaviour:
   primeRevolutions: 1.25
   offsetToleranceDeg: 45
   fallbackExpectedOffset: 0.1
-  applyAsEarlyAsPossible: 1
+  applyAsEarlyAsPossible: 0
   applyLeadMeters: 0
   bumpClearanceMeters: 0
   State: 0
@@ -2533,6 +2533,10 @@ PrefabInstance:
     - target: {fileID: 4576016819486989078, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_LocalPosition.z
       value: -0.115
+      objectReference: {fileID: 0}
+    - target: {fileID: 5143964079504177468, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_YDrive.positionDamper
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6002097869086498077, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSource
