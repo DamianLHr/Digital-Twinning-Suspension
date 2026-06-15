@@ -88,7 +88,8 @@ public class BumpPipeline : MonoBehaviour
         public float CMin, CMax;
         public float PeakMin, PeakMax;
         public float SolveMs, SlackMs;
-        public float ObservedBeltPos;   // belt TraveledDistance at the bump's trailing edge (capture time, NO solve latency)
+        public float ObservedBeltPos;   // belt TraveledDistance at the bump's LEADING edge (capture time, NO solve latency)
+        public float BumpLengthMeters;  // leading→trailing belt length of the bump (for clearance timing)
     }
 
     [Serializable] public class BumpEvent : UnityEvent<BumpSnapshot> { }
@@ -122,7 +123,7 @@ public class BumpPipeline : MonoBehaviour
         public RoadProfile Road;
         public float StartTime;
         public float BumpLengthMeters;
-        public float ObservedBeltPos;   // trailing-edge belt position, captured when the bump ended
+        public float ObservedBeltPos;   // leading-edge belt position, captured at BeginBump
     }
     private DampingSearchInFlight _inFlight;
 
@@ -367,7 +368,8 @@ public class BumpPipeline : MonoBehaviour
             PeakMax = peakMax,
             SolveMs = lastSolveMs,
             SlackMs = lastPredictiveSlackMs,
-            ObservedBeltPos = _inFlight.ObservedBeltPos
+            ObservedBeltPos = _inFlight.ObservedBeltPos,
+            BumpLengthMeters = _inFlight.BumpLengthMeters
         });
 
         DisposeInFlight();

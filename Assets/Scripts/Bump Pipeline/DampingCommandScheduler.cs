@@ -74,8 +74,11 @@ public class DampingCommandScheduler : MonoBehaviour
     [Tooltip("Used only when NOT applying as-early-as-possible: belt distance before the bump's " +
              "arrival at which to apply (m). 0 = apply exactly at arrival (old behaviour).")]
     [SerializeField] private float applyLeadMeters = 0.05f;
-    [Tooltip("Belt distance a bump occupies at the wheel. The previous bump is treated as cleared " +
-             "this far past its arrival, after which the next coefficient may be applied.")]
+    [Tooltip("EXTRA safety margin (m) added beyond the bump's measured leading→trailing length. " +
+             "The previous bump is treated as cleared at its trailing edge plus this margin, after " +
+             "which the next coefficient may apply. The bump's real length is now plumbed from the " +
+             "pipeline, so this only needs to be a small cushion (the old 0.03 stood in for the whole " +
+             "bump occupancy — you can lower it now).")]
     [SerializeField] private float bumpClearanceMeters = 0.03f;
 
     [Header("Diagnostics (read-only)")]
@@ -98,7 +101,7 @@ public class DampingCommandScheduler : MonoBehaviour
     public AppliedEvent   OnCommandApplied   = new AppliedEvent();
     public FloatEvent     OnJolt             = new FloatEvent();   // belt pos at each detected jolt
 
-    private struct PendingCommand { public float TargetPos; public float C; public float SpeedAtSolve; }
+    private struct PendingCommand { public float TargetPos; public float C; public float SpeedAtSolve; public float BumpLength; }
     private readonly List<PendingCommand> _pending = new List<PendingCommand>(16);
 
     private float _firstObservationPos;
@@ -172,7 +175,7 @@ public class DampingCommandScheduler : MonoBehaviour
 
     private void OnSolveCompleted(BumpPipeline.SolveSnapshot snap)
     {
-        // Trailing-edge belt position at capture time — no async solve latency.
+        // Leading-edge belt position at capture time — no async solve latency.
         float observedAt = snap.ObservedBeltPos;
 
         if (State == CalibState.WaitingForObservation && !_firstObservationCaptured)
@@ -195,7 +198,7 @@ public class DampingCommandScheduler : MonoBehaviour
         // The observed bump returns to the wheel after wheelOffset more metres.
         float targetPos = observedAt + wheelOffset;
         float speedAtSolve = terrainWheel != null ? terrainWheel.LinearSpeed : 0f;
-        _pending.Add(new PendingCommand { TargetPos = targetPos, C = snap.BestC, SpeedAtSolve = speedAtSolve });
+        _pending.Add(new PendingCommand { TargetPos = targetPos, C = snap.BestC, SpeedAtSolve = speedAtSolve, BumpLength = snap.BumpLengthMeters });
         queueDepth = _pending.Count;
 
         OnCommandScheduled.Invoke(new ScheduledInfo
@@ -298,7 +301,12 @@ public class DampingCommandScheduler : MonoBehaviour
                 SpeedAtApply = terrainWheel.LinearSpeed
             });
 
-            _prevClearPos = cmd.TargetPos + bumpClearanceMeters;   // this bump clears here
+            // TargetPos is the LEADING edge (first contact); the bump occupies BumpLength of
+            // belt past it, so it clears at the trailing edge + margin. (Previously this added
+            // only the margin to a trailing-edge TargetPos; after the leading-edge fix that put
+            // the clear point mid-bump, so the next C was applied while this bump was still under
+            // the wheel.)
+            _prevClearPos = cmd.TargetPos + cmd.BumpLength + bumpClearanceMeters;
             _pending.RemoveAt(0);
             queueDepth = _pending.Count;
         }

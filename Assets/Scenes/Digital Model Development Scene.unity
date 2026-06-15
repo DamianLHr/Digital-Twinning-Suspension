@@ -2222,7 +2222,7 @@ MonoBehaviour:
   primeRevolutions: 1.25
   offsetToleranceDeg: 45
   fallbackExpectedOffset: 0.1
-  applyAsEarlyAsPossible: 0
+  applyAsEarlyAsPossible: 1
   applyLeadMeters: 0
   bumpClearanceMeters: 0
   State: 0
