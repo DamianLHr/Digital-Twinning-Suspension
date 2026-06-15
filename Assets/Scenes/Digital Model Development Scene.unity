@@ -632,7 +632,7 @@ MonoBehaviour:
   springConstant: 27
   initialDamping: 3
   tyreStiffness: 200000
-  tyreDamping: 600
+  tyreDamping: 120000
   cMin: 0.02
   cMax: 5
   sprung: {fileID: 923035447}
@@ -807,7 +807,7 @@ MonoBehaviour:
   scheduler: {fileID: 1942129326}
   terrainWheel: {fileID: 8832490091397412700}
   gravityBaseline: 1
-  joltMatchFraction: 0.3
+  joltMatchFraction: 0.1
   assetsSubfolder: DiagnosticsData
   recording: 0
   rowsWritten: 0
@@ -831,7 +831,7 @@ MonoBehaviour:
   recorder: {fileID: 973824722}
   speedCommand: {fileID: 6995205313120960916}
   policy: 0
-  constantC: 0.01
+  constantC: 3
   beltSpeed: 0.15
   warmupSeconds: 4
   collectSeconds: 30
@@ -2518,6 +2518,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 12
       objectReference: {fileID: 0}
+    - target: {fileID: 4170125118687225733, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.416
+      objectReference: {fileID: 0}
+    - target: {fileID: 4170125118687225733, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.281
+      objectReference: {fileID: 0}
     - target: {fileID: 4272721556144124586, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Mass
       value: 0.0702
@@ -2528,11 +2536,19 @@ PrefabInstance:
       objectReference: {fileID: 1808107237}
     - target: {fileID: 4576016819486989078, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.325
+      value: -0.385
       objectReference: {fileID: 0}
     - target: {fileID: 4576016819486989078, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.115
+      value: -0.118
+      objectReference: {fileID: 0}
+    - target: {fileID: 4857565057011165783, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.244
+      objectReference: {fileID: 0}
+    - target: {fileID: 4857565057011165783, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.425
       objectReference: {fileID: 0}
     - target: {fileID: 5143964079504177468, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_YDrive.positionDamper
