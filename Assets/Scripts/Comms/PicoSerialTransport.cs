@@ -48,6 +48,10 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     public int PacketsReceived => packetsReceived;
     public int DroppedPackets => droppedPackets;
 
+    // Public config surface for the setup UI. Set these, then call Connect() to apply.
+    public string PortName { get => portName; set => portName = value; }
+    public int BaudRate    { get => baudRate; set => baudRate = value; }
+
     private SerialPort _port;
     private Thread _reader;
     private volatile bool _running;

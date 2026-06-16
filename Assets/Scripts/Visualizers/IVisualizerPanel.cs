@@ -13,6 +13,10 @@ public interface IVisualizerPanel
     /// <summary>Name shown in the manager's selection list.</summary>
     string DisplayName { get; }
 
+    /// <summary>Group heading this panel is listed under in the manager (e.g. "Sensors",
+    /// "Actuators", "Control"). Panels in the same group get a single on/off toggle.</summary>
+    string Group { get; }
+
     /// <summary>Whether this panel currently renders. Driven by the manager.</summary>
     bool Show { get; set; }
 

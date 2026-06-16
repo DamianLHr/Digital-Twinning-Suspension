@@ -228,12 +228,69 @@ public class VisualizerManager : MonoBehaviour
         if (menuOpen) DrawMenu();
     }
 
+    // Preferred group order in the menu; any other groups are appended alphabetically.
+    private static readonly string[] GroupOrder = { "Sensors", "Control", "Actuators" };
+    private readonly List<string> _groupNames = new List<string>();
+    private readonly Dictionary<string, List<IVisualizerPanel>> _groups =
+        new Dictionary<string, List<IVisualizerPanel>>();
+
+    // Bucket the live panels by their Group, ordered (preferred first, rest alphabetical).
+    // Lists are reused frame-to-frame to avoid per-frame allocation.
+    private void RebuildGroups(IReadOnlyList<IVisualizerPanel> panels)
+    {
+        _groupNames.Clear();
+        foreach (var kv in _groups) kv.Value.Clear();
+
+        for (int i = 0; i < panels.Count; i++)
+        {
+            IVisualizerPanel p = panels[i];
+            string g = string.IsNullOrEmpty(p.Group) ? "Other" : p.Group;
+            if (!_groups.TryGetValue(g, out var list))
+            {
+                list = new List<IVisualizerPanel>();
+                _groups[g] = list;
+            }
+            list.Add(p);
+        }
+
+        for (int i = 0; i < GroupOrder.Length; i++)
+            if (_groups.TryGetValue(GroupOrder[i], out var l) && l.Count > 0) _groupNames.Add(GroupOrder[i]);
+
+        var rest = new List<string>();
+        foreach (var kv in _groups)
+            if (kv.Value.Count > 0 && System.Array.IndexOf(GroupOrder, kv.Key) < 0) rest.Add(kv.Key);
+        rest.Sort();
+        _groupNames.AddRange(rest);
+    }
+
+    private bool GroupAllShown(List<IVisualizerPanel> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            _selected.TryGetValue(list[i], out bool s);
+            if (!s) return false;
+        }
+        return list.Count > 0;
+    }
+
+    private void SetGroupShown(List<IVisualizerPanel> list, bool on)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            _selected[list[i]] = on;
+            list[i].Show = on;
+        }
+    }
+
     private void DrawMenu()
     {
         var panels = VisualizerRegistry.Panels;
-        const float pad = 8f, rowH = 20f;
-        // rows: title + (master toggle + each panel) when any exist, else title + "(none)"
-        float h = pad * 2f + rowH * (panels.Count > 0 ? panels.Count + 2 : 2);
+        const float pad = 8f, rowH = 20f, indent = 16f;
+        RebuildGroups(panels);
+
+        // rows: title + master + Σ(group header + its panels); or title + "(none)".
+        int rows = panels.Count == 0 ? 2 : 2 + _groupNames.Count + panels.Count;
+        float h = pad * 2f + rowH * rows;
         Rect box = new Rect(menuAnchor.x, menuAnchor.y, menuWidth, h);
 
         Color old = GUI.color;
@@ -241,15 +298,16 @@ public class VisualizerManager : MonoBehaviour
         GUI.DrawTexture(box, Texture2D.whiteTexture);
         GUI.color = old;
 
+        float x = menuAnchor.x + pad;
+        float w = menuWidth - pad * 2f;
         float y = menuAnchor.y + pad;
-        GUI.Label(new Rect(menuAnchor.x + pad, y, menuWidth - pad * 2f, rowH),
-                  $"<b>Visualizers</b>  ({menuKey})", _label);
+
+        GUI.Label(new Rect(x, y, w, rowH), $"<b>Visualizers</b>  ({menuKey})", _label);
         y += rowH;
 
         if (panels.Count == 0)
         {
-            GUI.Label(new Rect(menuAnchor.x + pad, y, menuWidth - pad * 2f, rowH),
-                      "(none in scene)", _label);
+            GUI.Label(new Rect(x, y, w, rowH), "(none in scene)", _label);
             return;
         }
 
@@ -260,24 +318,32 @@ public class VisualizerManager : MonoBehaviour
             _selected.TryGetValue(panels[i], out bool s);
             if (!s) { allShown = false; break; }
         }
-        bool newAll = GUI.Toggle(new Rect(menuAnchor.x + pad, y, menuWidth - pad * 2f, rowH),
+        bool newAll = GUI.Toggle(new Rect(x, y, w, rowH),
                                  allShown, allShown ? "  <b>Hide all</b>" : "  <b>Show all</b>", _toggle);
         if (newAll != allShown)
-            for (int i = 0; i < panels.Count; i++)
-            {
-                _selected[panels[i]] = newAll;
-                panels[i].Show = newAll;
-            }
+            for (int i = 0; i < panels.Count; i++) { _selected[panels[i]] = newAll; panels[i].Show = newAll; }
         y += rowH;
 
-        for (int i = 0; i < panels.Count; i++)
+        // Per group: a bold group toggle (whole group on/off), then its panels indented.
+        for (int gi = 0; gi < _groupNames.Count; gi++)
         {
-            IVisualizerPanel p = panels[i];
-            _selected.TryGetValue(p, out bool want);
-            bool now = GUI.Toggle(new Rect(menuAnchor.x + pad, y, menuWidth - pad * 2f, rowH),
-                                  want, "  " + p.DisplayName, _toggle);
-            if (now != want) _selected[p] = now;
+            List<IVisualizerPanel> list = _groups[_groupNames[gi]];
+
+            bool groupShown = GroupAllShown(list);
+            bool newGroup = GUI.Toggle(new Rect(x, y, w, rowH),
+                                       groupShown, "  <b>" + _groupNames[gi] + "</b>", _toggle);
+            if (newGroup != groupShown) SetGroupShown(list, newGroup);
             y += rowH;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                IVisualizerPanel p = list[i];
+                _selected.TryGetValue(p, out bool want);
+                bool now = GUI.Toggle(new Rect(x + indent, y, w - indent, rowH),
+                                      want, "  " + p.DisplayName, _toggle);
+                if (now != want) _selected[p] = now;
+                y += rowH;
+            }
         }
     }
 

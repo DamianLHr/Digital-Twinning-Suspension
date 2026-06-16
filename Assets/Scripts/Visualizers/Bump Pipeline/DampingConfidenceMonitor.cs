@@ -141,6 +141,7 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
     // ---- IVisualizerPanel ----
 
     public string DisplayName => string.IsNullOrEmpty(title) ? GetType().Name : title;
+    public string Group => "Control";
     public bool Show { get => show; set => show = value; }
     public Transform WorldAnchor => worldAnchorOverride != null ? worldAnchorOverride : transform;
     public bool FloatInWorld => floatInWorld;

@@ -130,6 +130,7 @@ public class PotentiometerVisualizer : MonoBehaviour, IVisualizerPanel, IModeRec
     // ---- IVisualizerPanel (small readout only) -------------------------
 
     public string DisplayName => string.IsNullOrEmpty(title) ? GetType().Name : title;
+    public string Group => "Sensors";
     public bool Show { get => show; set => show = value; }
     public Transform WorldAnchor =>
         worldAnchorOverride != null ? worldAnchorOverride : (nub != null ? nub : transform);

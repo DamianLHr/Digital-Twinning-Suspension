@@ -62,6 +62,7 @@ public abstract class ActuatorVisualizerBase : MonoBehaviour, IVisualizerPanel
     // ---- IVisualizerPanel ----------------------------------------------
 
     public string DisplayName => string.IsNullOrEmpty(title) ? GetType().Name : title;
+    public virtual string Group => "Actuators";
     public bool Show { get => show; set => show = value; }
     public Transform WorldAnchor => worldAnchorOverride != null ? worldAnchorOverride : transform;
     public bool FloatInWorld => floatInWorld;
