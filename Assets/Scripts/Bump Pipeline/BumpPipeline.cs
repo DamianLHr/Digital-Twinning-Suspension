@@ -15,7 +15,7 @@ using UnityEngine.Events;
 /// payloads, intended for BumpPipelineVisualizer / loggers.
 /// </summary>
 [DisallowMultipleComponent]
-public class BumpPipeline : MonoBehaviour
+public class BumpPipeline : MonoBehaviour, IModeReceiver
 {
     public enum State { Idle, Accumulating, Cooldown }
 
@@ -25,13 +25,34 @@ public class BumpPipeline : MonoBehaviour
     [SerializeField] private TerrainWheel terrainWheel;
 
     [Header("Geometry")]
-    [SerializeField] private float nominalStandoff = 0.15f;
+    [Tooltip("Flat-belt ToF reading (m) in SIMULATION — the digital sensor's standoff in the Unity scene. " +
+             "Bump height = standoff − distance, so it must match the flat-belt reading for the active mode.")]
+    [UnityEngine.Serialization.FormerlySerializedAs("nominalStandoff")]
+    [SerializeField] private float nominalStandoffSim = 0.055f;
+    [Tooltip("Flat-belt ToF reading (m) in TWINNING — the physical ToF→drum standoff on the real rig.")]
+    [SerializeField] private float nominalStandoffTwin = 0.15f;
     [SerializeField] private float sensorLead = 0.10f;
 
-    public float NominalStandoff => nominalStandoff;
+    // Active standoff for the current mode. ModeManager pushes the mode via OnModeChanged;
+    // defaults to the sim value (the default mode) so any reading before that is still correct.
+    private float _nominalStandoff = 0.055f;
+    private float _baseline = 0.055f;     // adaptive flat-distance estimate (drum-wobble rejection)
+    private float _lastSampleTime;
+
+    public float NominalStandoff => _nominalStandoff;
     /// <summary>Known geometric belt distance from the ToF beam to the wheel contact patch.
     /// The scheduler uses this to validate its auto-measured wheel offset.</summary>
     public float SensorLead => sensorLead;
+
+    [Header("Baseline (drum-wobble rejection)")]
+    [Tooltip("Track the flat-belt distance with a SLOW baseline so a slowly oscillating drum " +
+             "(eccentricity/wobble, ~once per revolution) is not mistaken for a bump. The baseline " +
+             "adapts ONLY while flat (Idle), so it can never chase a real bump. Off = use the fixed " +
+             "nominal standoff as the reference.")]
+    [SerializeField] private bool adaptiveBaseline = true;
+    [Tooltip("Baseline tracking time-constant (s): >> a bump's duration but < one drum revolution. " +
+             "The once-per-rev wobble is slow and bumps are sharp, so this separates them.")]
+    [Min(0.01f)] [SerializeField] private float baselineTau = 0.5f;
 
     [Header("Detection")]
     [Tooltip("Deviation from flat (m) that starts a capture. Magnitude-based, so " +
@@ -135,6 +156,8 @@ public class BumpPipeline : MonoBehaviour
             _ring = new Sample[Mathf.Max(1, preRollSamples)];
         _ringHead = 0;
         _ringCount = 0;
+        _baseline = _nominalStandoff;
+        _lastSampleTime = Time.time;
 
         if (tof != null) tof.OnDistance.AddListener(OnDistance);
     }
@@ -144,6 +167,14 @@ public class BumpPipeline : MonoBehaviour
         if (tof != null) tof.OnDistance.RemoveListener(OnDistance);
         CompleteInFlightImmediate();
         DisposeSnapshots();
+    }
+
+    // ModeManager pushes the active mode. The flat-belt ToF standoff differs between the
+    // Unity scene (sim) and the physical rig (twin), so pick the matching baseline.
+    public void OnModeChanged(TwinMode mode)
+    {
+        _nominalStandoff = mode == TwinMode.Twinning ? nominalStandoffTwin : nominalStandoffSim;
+        _baseline = _nominalStandoff;   // reseed the wobble baseline for the new mode
     }
 
     // Burst compiles a job on its first execution, which makes the FIRST real
@@ -177,7 +208,17 @@ public class BumpPipeline : MonoBehaviour
 
     private void OnDistance(float distance)
     {
-        float height = distance < 0f ? 0f : nominalStandoff - distance;
+        // Reference for "flat". With adaptiveBaseline, track the slow flat-belt distance (updated
+        // ONLY while Idle, so it can never chase a bump) to reject drum wobble; else fixed standoff.
+        float reference = _nominalStandoff;
+        if (adaptiveBaseline && distance >= 0f)
+        {
+            float now = Time.time, dt = now - _lastSampleTime; _lastSampleTime = now;
+            if (CurrentState == State.Idle && dt > 0f && dt < 0.5f)
+                _baseline += (1f - Mathf.Exp(-dt / Mathf.Max(1e-4f, baselineTau))) * (distance - _baseline);
+            reference = _baseline;
+        }
+        float height = distance < 0f ? 0f : reference - distance;
         float pos = terrainWheel != null ? terrainWheel.TraveledDistance : 0f;
 
         switch (CurrentState)

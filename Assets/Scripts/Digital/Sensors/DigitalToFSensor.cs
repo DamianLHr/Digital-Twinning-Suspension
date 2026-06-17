@@ -21,9 +21,15 @@ public class DigitalToFSensor : DigitalSensorBase
     [SerializeField] private LayerMask hitMask = ~0;
     [Tooltip("Optional: draw a debug line in the Scene/Game view.")]
     [SerializeField] private bool drawDebug = false;
+    [Tooltip("Low-pass smoothing time-constant (s) on the distance, mirroring the real VL53L0X's " +
+             "averaging. Keep small (<< a bump's duration) so bumps aren't flattened. 0 = off.")]
+    [SerializeField] private float smoothingTau = 0.01f;
 
     [Header("Output")]
     [SerializeField] private ToFSensorOutput tofOutput;
+
+    private Ema _ema;
+    private float _lastTime;
 
     public override void Initialize()
     {
@@ -41,16 +47,18 @@ public class DigitalToFSensor : DigitalSensorBase
         if (Physics.Raycast(origin, dir, out RaycastHit hit, range, hitMask,
                             QueryTriggerInteraction.Ignore))
         {
-            // Clamp into [0, range].
+            // Clamp into [0, range], then low-pass (mirrors the real sensor's averaging).
             float d = hit.distance;
             if (d < 0f) d = 0f;
             if (d > range) d = range;
+            d = _ema.Step(d, Time.time - _lastTime, smoothingTau); _lastTime = Time.time;
             tofOutput.Publish(d);
 
             if (drawDebug) Debug.DrawLine(origin, hit.point, Color.green, 0f, false);
         }
         else
         {
+            _ema.Reset(); _lastTime = Time.time;   // gap: don't blend across a no-target
             tofOutput.PublishNoTarget();
             if (drawDebug) Debug.DrawRay(origin, dir * range, Color.red, 0f, false);
         }

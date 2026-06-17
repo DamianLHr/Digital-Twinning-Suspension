@@ -1,40 +1,23 @@
 using UnityEngine;
 
 /// <summary>
-/// Real terrain wheel drive. Consumes a TerrainWheelSpeedCommand (m/s), maps it to
-/// the device's belt_command integer, and transmits it. Live only in Twinning mode.
+/// Real terrain wheel drive. Commands the device's belt at a fixed wheel speed in
+/// RPM (sent as belt_command). Live only in Twinning mode.
 /// Set channelId = PicoChannels.Belt in the Inspector.
 /// </summary>
 public class RealTerrainWheelActuator : RealActuatorBase
 {
     [Header("Terrain wheel (real)")]
-    [SerializeField] private TerrainWheelSpeedCommand speedCommand;
-    [Tooltip("belt_command units per m/s. Units are device-specific (TBD); tune to the firmware.")]
-    [SerializeField] private float commandPerMeterPerSecond = 1000f;
+    [Tooltip("Wheel speed command sent to the device, in RPM.")]
+    [SerializeField] private int rpm = 100;
 
-    [Header("Diagnostics (read-only)")]
-    [SerializeField] private int currentCommand;
-
-    public override void Initialize()
+    protected override void OnEnable()
     {
-        base.Initialize();
-        if (command == null) command = speedCommand;
+        base.OnEnable();
+        SendInt(rpm);
     }
 
-    protected override void Subscribe()
-    {
-        if (speedCommand == null) speedCommand = command as TerrainWheelSpeedCommand;
-        if (speedCommand != null) speedCommand.OnSpeed.AddListener(OnSpeed);
-    }
+    protected override void Subscribe() { }
 
-    protected override void Unsubscribe()
-    {
-        if (speedCommand != null) speedCommand.OnSpeed.RemoveListener(OnSpeed);
-    }
-
-    private void OnSpeed(float metersPerSecond)
-    {
-        currentCommand = Mathf.RoundToInt(metersPerSecond * commandPerMeterPerSecond);
-        SendInt(currentCommand);
-    }
+    protected override void Unsubscribe() { }
 }

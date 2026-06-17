@@ -295,10 +295,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6995205313120960917}
     m_Modifications:
-    - target: {fileID: -5763144963161749562, guid: 14ddb0a320f69ac44a57887ada2a2775, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 7e652467cd52077479a9af890c9b3722, type: 2}
     - target: {fileID: 8128668236925612103, guid: 14ddb0a320f69ac44a57887ada2a2775, type: 3}
       propertyPath: m_Name
       value: AcutatorModelDrum
@@ -693,22 +689,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba1b5e5745462e40a78eda12436fcfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.QuarterCarConfig
-  sprungMassKg: 0.4304
+  sprungMassKg: 0.1304
   unsprungMassKg: 0.0702
-  springConstant: 420
+  springConstant: 27
   initialDamping: 3
-  tyreStiffness: 100
-  tyreDamping: 20
+  tyreStiffness: 200000
+  tyreDamping: 120000
   cMin: 0.02
-  cMax: 50
+  cMax: 5
   sprung: {fileID: 923035447}
   unsprung: {fileID: 499001053}
   springJoint: {fileID: 923035446}
   pipeline: {fileID: 1942129324}
-  staticDeflectionMm: 10.052915
-  naturalFreqHz: 4.9717426
-  criticalDamping: 26.89
-  dampingRatioInitial: 0.11156564
+  staticDeflectionMm: 47.37867
+  naturalFreqHz: 2.290146
+  criticalDamping: 3.752759
+  dampingRatioInitial: 0.79941183
 --- !u!114 &837503073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -896,8 +892,8 @@ MonoBehaviour:
   constantPolicy: {fileID: 1942129329}
   recorder: {fileID: 973824722}
   speedCommand: {fileID: 6995205313120960916}
-  policy: 1
-  constantC: 0.0001
+  policy: 0
+  constantC: 3
   beltSpeed: 0.15
   warmupSeconds: 4
   collectSeconds: 30
@@ -1693,7 +1689,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 41.88, y: 13.599976}
+  m_AnchoredPosition: {x: 16.4, y: 13.599976}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1428524779
@@ -1716,7 +1712,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Wheel Speed
+  m_text: Belt Speed Control
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2323,22 +2319,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Suspension.Sensors.BumpPipeline
   tof: {fileID: 308208525}
   terrainWheel: {fileID: 8832490091397412700}
-  nominalStandoffSim: 0.05501598
-  nominalStandoffTwin: 0.15
+  nominalStandoff: 0.05501598
   sensorLead: 0.33
-  adaptiveBaseline: 1
-  baselineTau: 0.5
   triggerHeight: 0.0005
   endSamples: 5
   preRollSamples: 32
   maxProfileSamples: 1024
   minBumpSamples: 4
   cooldownSamples: 16
-  mass: 0.4304
-  stiffness: 420
+  mass: 0.1304
+  stiffness: 27
   cMin: 0.02
-  cMax: 50
-  cCandidates: 512
+  cMax: 5
+  cCandidates: 256
   solverSteps: 1500
   solverDt: 0.001
   dampingRmsWeight: 0
@@ -2611,10 +2604,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 691813323158931293, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 686d9bd4b6c9dff41a26c8ae918726a8, type: 2}
     - target: {fileID: 710200462119749779, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.127
@@ -2623,10 +2612,6 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.318
       objectReference: {fileID: 0}
-    - target: {fileID: 724712905143385335, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 686d9bd4b6c9dff41a26c8ae918726a8, type: 2}
     - target: {fileID: 898870233379278991, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: mass
       value: 0.1304
@@ -2635,10 +2620,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: QuarterCarRig
       objectReference: {fileID: 0}
-    - target: {fileID: 1568741714652428676, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 686d9bd4b6c9dff41a26c8ae918726a8, type: 2}
     - target: {fileID: 1636875268915002508, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -2659,14 +2640,6 @@ PrefabInstance:
       propertyPath: packetSource
       value: 
       objectReference: {fileID: 1808107237}
-    - target: {fileID: 3111998144511523585, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: strokeLength
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3120174559826042244, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 7e652467cd52077479a9af890c9b3722, type: 2}
     - target: {fileID: 3163597733600951712, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.08
@@ -2707,21 +2680,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3273367145253655702, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 686d9bd4b6c9dff41a26c8ae918726a8, type: 2}
     - target: {fileID: 3529451476508715147, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_LocalPosition.z
       value: 93.4
       objectReference: {fileID: 0}
-    - target: {fileID: 3786175087760763512, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: d8e5db8f9d6c0ee40b03bca6246d516a, type: 2}
     - target: {fileID: 3833032264666608249, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_Mass
-      value: 0.4304
+      value: 0.1304
       objectReference: {fileID: 0}
     - target: {fileID: 4003752654410717584, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSink
@@ -2767,38 +2732,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -0.425
       objectReference: {fileID: 0}
-    - target: {fileID: 4888369972077863975, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5143964079504177468, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: m_YDrive.positionDamper
       value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5143964079504177468, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: m_YDrive.positionSpring
-      value: 420
       objectReference: {fileID: 0}
     - target: {fileID: 5257356202603335578, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: worldAnchorOverride
       value: 
       objectReference: {fileID: 810188560}
-    - target: {fileID: 5515300441033117633, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 686d9bd4b6c9dff41a26c8ae918726a8, type: 2}
-    - target: {fileID: 5792392949264298716, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 686d9bd4b6c9dff41a26c8ae918726a8, type: 2}
     - target: {fileID: 6002097869086498077, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSource
       value: 
       objectReference: {fileID: 1808107237}
-    - target: {fileID: 6972878804600462231, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 686d9bd4b6c9dff41a26c8ae918726a8, type: 2}
     - target: {fileID: 7415652037409829594, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: mass
       value: 0.0702
@@ -2815,10 +2760,6 @@ PrefabInstance:
       propertyPath: packetSource
       value: 
       objectReference: {fileID: 1808107237}
-    - target: {fileID: 8400955123225993495, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 686d9bd4b6c9dff41a26c8ae918726a8, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

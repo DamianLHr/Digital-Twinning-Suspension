@@ -47,3 +47,24 @@ public interface ISensorPacketSource
     void Subscribe(byte channelId, Action<SensorPacket> handler);
     void Unsubscribe(byte channelId, Action<SensorPacket> handler);
 }
+
+/// <summary>
+/// First-order exponential low-pass (smoothing). Time-constant based, so a given tau gives the
+/// same real-time response regardless of the caller's sample rate — the digital ToF (200 Hz) and
+/// the real ToF (USB rate) therefore smooth identically for the same tau. Used to model the real
+/// VL53L0X's internal averaging without flattening bumps (keep tau much smaller than a bump's
+/// duration). A value type; hold one as a field and call Step() each sample.
+/// </summary>
+public struct Ema
+{
+    private float _v;
+    private bool _init;
+    public float Value => _v;
+    public void Reset() => _init = false;      // call on a no-target gap so we don't blend across it
+    public float Step(float sample, float dt, float tau)
+    {
+        if (!_init || tau <= 0f || dt <= 0f) { _v = sample; _init = true; }
+        else _v += (1f - Mathf.Exp(-dt / tau)) * (sample - _v);
+        return _v;
+    }
+}

@@ -189,7 +189,7 @@ public class SimulationStartupMenu : MonoBehaviour
 
         string hint = scenario == null ? "No ScenarioRunner found — cannot start."
                     : string.IsNullOrWhiteSpace(_runName) ? "Set a run name (Scenario tab) to enable data collection."
-                    : string.IsNullOrEmpty(_status) ? "Free run is always available."
+                    //: string.IsNullOrEmpty(_status) ? "Free run is always available."
                     : _status;
         GUILayout.Label(hint, _label);
         GUILayout.EndArea();
