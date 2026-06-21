@@ -14,12 +14,15 @@ public class RealPotentiometer : RealSensorBase
     [SerializeField] private float strokeLength = 0.06f;
     [SerializeField] private PositionOutput positionOutput;
 
+    private RollingAverage _avg;
+
     protected override void Decode(SensorPacket packet)
     {
         if (positionOutput == null || packet.Payload.Length < 4) return;
+        _avg.Configure(rollingAverageWindow);
 
         int raw = PicoChannelCodec.DecodePotRaw(packet);
         float normalized = Mathf.Clamp01(raw / Mathf.Max(1f, adcMax));
-        positionOutput.Publish(normalized * strokeLength);
+        positionOutput.Publish(_avg.Add(normalized * strokeLength));
     }
 }

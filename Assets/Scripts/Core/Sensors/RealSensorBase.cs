@@ -15,6 +15,11 @@ public abstract class RealSensorBase : SensorBase, IRealDevice
              "If left empty, call OnPacketReceived() manually.")]
     [SerializeField] protected MonoBehaviour packetSource;
 
+    [Header("Smoothing")]
+    [Tooltip("Rolling (moving) average window, in samples, applied to the published value. " +
+             "1 = off (raw value passes through unchanged).")]
+    [SerializeField] protected int rollingAverageWindow = 1;
+
     private ISensorPacketSource _source;
 
     public override void Initialize() { /* references resolved in OnEnable */ }

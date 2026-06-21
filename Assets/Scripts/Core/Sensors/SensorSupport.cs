@@ -49,6 +49,40 @@ public interface ISensorPacketSource
 }
 
 /// <summary>
+/// Fixed-window rolling (moving) average. Hold one per signal as a field, call Configure() with
+/// the desired window each sample (cheap — only reallocates when the window changes), then Add()
+/// the sample to get the running mean of the last N. A window of ≤ 1 turns averaging OFF: Add()
+/// returns the raw sample unchanged. Backed by a ring buffer with a running sum, so Add() is O(1).
+/// A value type; call Reset() on a gap (e.g. no-target) so it doesn't blend across it.
+/// </summary>
+public struct RollingAverage
+{
+    private float[] _buf;
+    private int _count, _head;
+    private float _sum;
+
+    /// <summary>Size the window (samples). Idempotent: only reallocates when the size changes.</summary>
+    public void Configure(int window)
+    {
+        window = Mathf.Max(1, window);
+        if (_buf == null || _buf.Length != window) { _buf = new float[window]; Reset(); }
+    }
+
+    public void Reset() { _count = 0; _head = 0; _sum = 0f; }
+
+    public float Add(float sample)
+    {
+        if (_buf == null || _buf.Length <= 1) return sample;   // averaging off → raw value
+        if (_count == _buf.Length) _sum -= _buf[_head];        // evict oldest
+        else _count++;
+        _buf[_head] = sample;
+        _sum += sample;
+        _head = (_head + 1) % _buf.Length;
+        return _sum / _count;
+    }
+}
+
+/// <summary>
 /// First-order exponential low-pass (smoothing). Time-constant based, so a given tau gives the
 /// same real-time response regardless of the caller's sample rate — the digital ToF (200 Hz) and
 /// the real ToF (USB rate) therefore smooth identically for the same tau. Used to model the real

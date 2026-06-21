@@ -10,12 +10,18 @@ public class RealAccelerometer : RealSensorBase
     [Header("Accelerometer (real) — MPU-6050")]
     [SerializeField] private AccelerometerOutput accelOutput;
 
+    private RollingAverage _ax, _ay, _az;   // per-axis rolling average
+
     protected override void Decode(SensorPacket packet)
     {
         if (accelOutput == null || packet.Payload.Length < 12) return;
+        _ax.Configure(rollingAverageWindow);
+        _ay.Configure(rollingAverageWindow);
+        _az.Configure(rollingAverageWindow);
 
         // Published in g — the MPU's native unit. No conversion to m/s² (the whole
         // accel pipeline works in g, with a baseline of 1 g at rest).
-        accelOutput.Publish(PicoChannelCodec.DecodeAccelG(packet));
+        Vector3 g = PicoChannelCodec.DecodeAccelG(packet);
+        accelOutput.Publish(new Vector3(_ax.Add(g.x), _ay.Add(g.y), _az.Add(g.z)));
     }
 }

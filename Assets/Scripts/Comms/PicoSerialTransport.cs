@@ -34,14 +34,27 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     [Header("Robustness")]
     [Tooltip("Skip frames whose every sensor field is exactly zero (a corrupt/blank packet). " +
              "Subscribers then keep their last good value instead of glitching to zero for a " +
-             "frame. Stopgap until the root cause is found.")]
+             "frame.")]
     [SerializeField] private bool rejectBlankFrames = true;
+    [Tooltip("Skip frames containing physically-impossible values (negative distance/pots, " +
+             "out-of-range pots, NaN/huge accel). These come from a brief framing mis-sync " +
+             "(a dropped byte or a false header in the payload) — the parser re-syncs on the " +
+             "next header, this just suppresses the corrupt frame so subscribers hold last good.")]
+    [SerializeField] private bool rejectImplausibleFrames = true;
+    [Tooltip("Upper bound (mm) for a plausible ToF reading. Negative is always rejected; this " +
+             "catches misframed garbage. Generous — the sensor does its own useful-range check.")]
+    [SerializeField] private int maxDistanceMm = 50000;
+    [Tooltip("Full ADC scale; pot raw outside 0..adcMax is non-physical (12-bit = 4096).")]
+    [SerializeField] private int adcMax = 4096;
+    [Tooltip("Max plausible |acceleration| per axis, in g. Above this (or NaN/Inf) = corrupt.")]
+    [SerializeField] private float maxAccelG = 32f;
 
     [Header("Diagnostics (read-only)")]
     [SerializeField] private bool connected;
     [SerializeField] private int packetsReceived;
     [SerializeField] private int droppedPackets;     // inferred from packet_id gaps
     [SerializeField] private int blankFrames;        // all-zero frames skipped
+    [SerializeField] private int badFrames;          // implausible (misframed) frames skipped
     [SerializeField] private uint lastPacketId;
 
     public bool Connected => _port != null && _port.IsOpen;
@@ -159,8 +172,8 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
 
     private void Dispatch(TwinData d)
     {
-        // Stopgap for the intermittent all-zero frame: skip it so every subscriber
-        // holds its last good value instead of dropping to zero for a frame.
+        // Skip the intermittent all-zero frame so every subscriber holds its last
+        // good value instead of dropping to zero for a frame.
         if (rejectBlankFrames && IsBlank(d))
         {
             blankFrames++;
@@ -173,6 +186,16 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
                         ? "id is valid → likely a firmware sensor-read miss (zeroed data), not misframing."
                         : "id is also zero → likely a framing/TX-timing issue (entire struct zero)."));
             }
+            return;
+        }
+
+        // Skip frames with physically-impossible values: a brief framing mis-sync
+        // (dropped byte / false header in payload) parses garbage — negative distance,
+        // out-of-range pots, NaN/huge accel. Dropping it lets subscribers hold last good;
+        // the rolling parser re-syncs on the next genuine header.
+        if (rejectImplausibleFrames && IsImplausible(d))
+        {
+            badFrames++;
             return;
         }
 
@@ -198,6 +221,21 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     private static bool IsBlank(in TwinData d) =>
         d.accel_x == 0f && d.accel_y == 0f && d.accel_z == 0f &&
         d.distance_mm == 0 && d.analog_1_raw == 0 && d.analog_2_raw == 0;
+
+    // A frame is implausible (corrupt/misframed) if any field is non-physical:
+    // ToF distance and ADC counts can never be negative, pots can't exceed full
+    // scale, and accel can't be NaN/Inf or beyond the sensor's range.
+    private bool IsImplausible(in TwinData d)
+    {
+        if (d.distance_mm < 0 || d.distance_mm > maxDistanceMm) return true;
+        if (d.analog_1_raw < 0 || d.analog_1_raw > adcMax) return true;
+        if (d.analog_2_raw < 0 || d.analog_2_raw > adcMax) return true;
+        if (!IsAccelSane(d.accel_x) || !IsAccelSane(d.accel_y) || !IsAccelSane(d.accel_z)) return true;
+        return false;
+    }
+
+    private bool IsAccelSane(float g) =>
+        !float.IsNaN(g) && !float.IsInfinity(g) && Mathf.Abs(g) <= maxAccelG;
 
     private void Emit(byte channel, float ts, byte[] payload)
     {
