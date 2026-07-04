@@ -119,8 +119,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
         }
     }
 
-    // --------- event handlers (filled in from BumpPipeline) ---------
-
     private void OnBumpCaptured(BumpPipeline.BumpSnapshot snap)
     {
         EnsureTextures();
@@ -128,8 +126,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
         int n = snap.Count;
         if (n < 1) return;
 
-        // Copy out (the snapshot is only valid during this call) and find the
-        // peak deviation magnitude.
         float[] full = new float[n];
         float maxAbs = 0f;
         for (int i = 0; i < n; i++)
@@ -140,8 +136,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
             if (a > maxAbs) maxAbs = a;
         }
 
-        // Crop to the region that actually deviates from flat, in either
-        // direction (so a pothole's downward dip isolates just like a bump).
         float active = Mathf.Max(1e-4f, maxAbs * activeFraction);
         int first = 0, last = n - 1;
         while (first < n && Mathf.Abs(full[first]) < active) first++;
@@ -161,8 +155,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
             if (h > rawHi) rawHi = h;
         }
 
-        // Plot range includes the zero baseline and a little headroom, so bumps
-        // read upward and potholes downward against the flat line.
         float lo = Mathf.Min(0f, rawLo);
         float hi = Mathf.Max(0f, rawHi);
         float pad = (hi - lo) * 0.08f + 1e-5f;
@@ -208,8 +200,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
         _costTex.Apply(false, false);
         _hasCost = true;
     }
-
-    // ----------------- OnGUI -----------------
 
     private void OnGUI()
     {
@@ -266,8 +256,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
                   costFooter, _label);
     }
 
-    // ----------------- IVisualizerPanel -----------------
-
     public string DisplayName => "Bump pipeline";
     public string Group => "Control";
     public bool Show { get => show; set => show = value; }
@@ -285,8 +273,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
         _managedTopLeft = topLeft;
         _hasManagedRect = true;
     }
-
-    // ----------------- drawing helpers -----------------
 
     private void DrawPanel(float x, float y, float w, float h)
     {
@@ -319,8 +305,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
         }
     }
 
-    // Draws a faint horizontal line at height = 0 (the flat-road baseline), so
-    // bumps read above it and potholes below it. Skipped if 0 is off-range.
     private void DrawBaseline(Texture2D tex, float vMin, float vMax)
     {
         if (0f < vMin || 0f > vMax) return;

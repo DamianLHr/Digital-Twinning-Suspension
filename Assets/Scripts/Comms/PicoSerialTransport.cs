@@ -82,8 +82,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
     private bool _havePacketId;
     private bool _loggedBlank;   // one-shot blank-frame diagnostic per connection
 
-    // ---- lifecycle ----
-
     private void OnEnable() { if (autoConnect) Connect(); }
     private void OnDisable() => Disconnect();
 
@@ -134,8 +132,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
         connected = false;
     }
 
-    // ---- background read ----
-
     private void ReadLoop()
     {
         var chunk = new byte[256];
@@ -156,8 +152,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
         }
     }
 
-    // ---- main-thread pump ----
-
     private void Update()
     {
         while (_inbound.TryDequeue(out TwinData d)) Dispatch(d);
@@ -172,8 +166,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
 
     private void Dispatch(TwinData d)
     {
-        // Skip the intermittent all-zero frame so every subscriber holds its last
-        // good value instead of dropping to zero for a frame.
         if (rejectBlankFrames && IsBlank(d))
         {
             blankFrames++;
@@ -211,16 +203,10 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
         Emit(PicoChannels.Pot2,  ts, PicoChannelCodec.EncodePotRaw(d.analog_2_raw));
     }
 
-    // A frame with every sensor field exactly zero is non-physical (a mounted
-    // accelerometer always reads ~1 g; ToF distance is 40–600 mm), so it's a
-    // corrupt/blank packet rather than real data.
     private static bool IsBlank(in TwinData d) =>
         d.accel_x == 0f && d.accel_y == 0f && d.accel_z == 0f &&
         d.distance_mm == 0 && d.analog_1_raw == 0 && d.analog_2_raw == 0;
 
-    // A frame is implausible (corrupt/misframed) if any field is non-physical:
-    // ToF distance and ADC counts can never be negative, pots can't exceed full
-    // scale, and accel can't be NaN/Inf or beyond the sensor's range.
     private bool IsImplausible(in TwinData d)
     {
         if (d.distance_mm < 0 || d.distance_mm > maxDistanceMm) return true;
@@ -245,8 +231,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
         _reconnectAt = Time.unscaledTime + Mathf.Max(0.25f, reconnectInterval);
     }
 
-    // ---- ISensorPacketSource (main thread) ----
-
     public void Subscribe(byte channelId, Action<SensorPacket> handler)
     {
         _subs.TryGetValue(channelId, out var existing);
@@ -261,10 +245,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
         else _subs[channelId] = combined;
     }
 
-    // ---- IActuatorPacketSink ----
-
-    // Each Real* actuator sends an int on its own channel; we merge them into the
-    // single CommandData frame the device expects and write it.
     public void Send(ActuatorPacket packet)
     {
         if (packet.Payload == null || packet.Payload.Length < 4) return;

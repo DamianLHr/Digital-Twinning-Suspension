@@ -87,8 +87,6 @@ public class SimulationStartupMenu : MonoBehaviour
         if (credits != null) credits.enabled = !open;
     }
 
-    // ---- IMGUI ----
-
     private void OnGUI()
     {
         EnsureStyles();
@@ -212,8 +210,6 @@ public class SimulationStartupMenu : MonoBehaviour
         GUILayout.EndArea();
     }
 
-    // ---- actions ----
-
     private void Launch(bool collect)
     {
         if (scenario == null) { _status = "No ScenarioRunner — cannot start."; return; }
@@ -249,8 +245,6 @@ public class SimulationStartupMenu : MonoBehaviour
         if (int.TryParse(_baud, NumberStyles.Integer, CultureInfo.InvariantCulture, out int b))
             transport.BaudRate = b;
     }
-
-    // ---- helpers ----
 
     private void Row(string label, ref string value)
     {
@@ -298,8 +292,6 @@ public class SimulationStartupMenu : MonoBehaviour
         _field    = new GUIStyle(GUI.skin.textField) { fontSize = 14 };
         _bar      = new GUIStyle(GUI.skin.label) { fontSize = 12, normal = { textColor = white } };
 
-        // Private solid-background box for the content panel (don't mutate the shared
-        // GUI.skin.box — CreditsPanel and others use it).
         _box = new GUIStyle(GUI.skin.box)
         {
             padding = new RectOffset(14, 14, 12, 12),

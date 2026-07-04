@@ -34,8 +34,6 @@ public class TerrainWheelSpeedSliderControl : MonoBehaviour
         if (slider == null) slider = GetComponent<Slider>();
         if (slider != null) slider.onValueChanged.AddListener(OnSliderChanged);
 
-        // Publish the current position immediately so the wheel isn't left on a
-        // stale command from before this control existed.
         if (slider != null) OnSliderChanged(slider.value);
     }
 
@@ -48,8 +46,6 @@ public class TerrainWheelSpeedSliderControl : MonoBehaviour
     {
         if (slider == null || speedCommand == null) return;
 
-        // Normalize the slider into 0..1 using its own configured range, then map
-        // to the speed range. Works whether the slider is 0..1 or something else.
         float lo = slider.minValue, hi = slider.maxValue;
         float t = Mathf.Approximately(hi, lo) ? 0f : Mathf.InverseLerp(lo, hi, raw);
         float speed = Mathf.Lerp(speedAtSliderMin, speedAtSliderMax, t);

@@ -40,8 +40,6 @@ public class SprungMass : MonoBehaviour, IModeReceiver
     public Vector3 GetVelocity()        => rb.linearVelocity;          // Unity 6: linearVelocity
     public Vector3 GetAcceleration()    => _acceleration;        // proper accel, matches real accelerometer
 
-    // Twinning: the real rig is the source of truth and the model mirrors it from
-    // sensor data, so make the body kinematic to stop physics fighting that.
     public void OnModeChanged(TwinMode mode)
     {
         if (rb == null) rb = GetComponent<Rigidbody>();

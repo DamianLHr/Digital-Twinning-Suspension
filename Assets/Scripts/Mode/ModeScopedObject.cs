@@ -34,8 +34,6 @@ public class ModeScopedObject : MonoBehaviour, IModeReceiver
             for (int i = 0; i < additionalTargets.Length; i++)
                 if (additionalTargets[i] != null) additionalTargets[i].SetActive(active);
 
-        // Toggle self LAST: deactivating our own GameObject doesn't abort this
-        // method, but doing the others first keeps the intent obvious.
         if (includeSelf) gameObject.SetActive(active);
     }
 }

@@ -19,8 +19,6 @@ public class RealAccelerometer : RealSensorBase
         _ay.Configure(rollingAverageWindow);
         _az.Configure(rollingAverageWindow);
 
-        // Published in g — the MPU's native unit. No conversion to m/s² (the whole
-        // accel pipeline works in g, with a baseline of 1 g at rest).
         Vector3 g = PicoChannelCodec.DecodeAccelG(packet);
         accelOutput.Publish(new Vector3(_ax.Add(g.x), _ay.Add(g.y), _az.Add(g.z)));
     }

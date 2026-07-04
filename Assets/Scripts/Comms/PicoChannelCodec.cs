@@ -12,7 +12,7 @@ using UnityEngine;
 /// </summary>
 public static class PicoChannelCodec
 {
-    // --- Accelerometer (PicoChannels.Accel): three little-endian floats, in g ---
+    // Accelerometer (PicoChannels.Accel): three little-endian floats, in g
     public static byte[] EncodeAccel(float gx, float gy, float gz)
     {
         var b = new byte[12];
@@ -26,11 +26,11 @@ public static class PicoChannelCodec
     public static Vector3 DecodeAccelG(SensorPacket p) =>
         new Vector3(p.ReadFloat(0), p.ReadFloat(4), p.ReadFloat(8));
 
-    // --- ToF (PicoChannels.ToF): one little-endian int32, in millimetres ---
+    // ToF (PicoChannels.ToF): one little-endian int32, in millimetres
     public static byte[] EncodeToFMm(int mm) => BitConverter.GetBytes(mm);
     public static int DecodeToFMm(SensorPacket p) => p.ReadInt(0);
 
-    // --- Potentiometer (PicoChannels.Pot1/Pot2): one little-endian int32 raw ADC ---
+    // Potentiometer (PicoChannels.Pot1/Pot2): one little-endian int32 raw ADC
     public static byte[] EncodePotRaw(int raw) => BitConverter.GetBytes(raw);
     public static int DecodePotRaw(SensorPacket p) => p.ReadInt(0);
 }

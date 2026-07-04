@@ -91,7 +91,6 @@ public class DampingCommandScheduler : MonoBehaviour
     public float WheelOffset => wheelOffset;
     public int QueueDepth => queueDepth;
 
-    // ---- telemetry for the accuracy visualizer / confidence monitor ----
     [System.Serializable] public struct ScheduledInfo { public float ObservedPos, TargetPos, C, SpeedAtSolve; }
     [System.Serializable] public struct AppliedInfo   { public float TargetPos, AppliedPos, C, SpeedAtSolve, SpeedAtApply; }
     [System.Serializable] public class ScheduledEvent : UnityEvent<ScheduledInfo> { }
@@ -130,8 +129,6 @@ public class DampingCommandScheduler : MonoBehaviour
         if (accel != null) accel.OnAcceleration.RemoveListener(OnAcceleration);
     }
 
-    // --- geometry / guards ----------------------------------------------
-
     private float Circumference() => terrainWheel != null ? Mathf.PI * terrainWheel.Diameter : 0f;
 
     /// <summary>Belt-travel from a ToF observation to the bump's NEXT wheel contact:
@@ -154,10 +151,6 @@ public class DampingCommandScheduler : MonoBehaviour
         return (terrainWheel.TraveledDistance - _enableTravel) >= prime;
     }
 
-    // --- calibration -----------------------------------------------------
-
-    // Deterministic path: once the drum is known and primed, the offset is just
-    // geometry — no jolt pairing needed, so nothing transient can poison it.
     private void TryGeometricCalibrate()
     {
         if (State == CalibState.Calibrated) return;
@@ -170,8 +163,6 @@ public class DampingCommandScheduler : MonoBehaviour
         Debug.Log($"[Scheduler] geometric calibration: wheelOffset = {wheelOffset * 1000f:F1} mm " +
                   $"({360f - sensorAngleBehindDeg:F0}° of a {Circumference() * 1000f:F0} mm/rev drum).");
     }
-
-    // --- event handlers --------------------------------------------------
 
     private void OnSolveCompleted(BumpPipeline.SolveSnapshot snap)
     {
@@ -259,8 +250,6 @@ public class DampingCommandScheduler : MonoBehaviour
         Debug.Log($"[Scheduler] jolt calibration: wheelOffset = {wheelOffset * 1000f:F1} mm " +
                   $"(phase {phaseDeg:F0}°, expected ~{expectedDeg:F0}°).");
     }
-
-    // --- queue processing ------------------------------------------------
 
     private void FixedUpdate()
     {

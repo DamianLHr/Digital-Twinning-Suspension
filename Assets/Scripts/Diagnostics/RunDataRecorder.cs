@@ -72,8 +72,6 @@ public class RunDataRecorder : MonoBehaviour
     private readonly List<BumpRow> _bumps = new List<BumpRow>();
     private int _bumpId;
 
-    // ---- lifecycle: subscribe always, gate writes by `recording` ----
-
     private void OnEnable() => Subscribe();
     private void OnDisable() { Unsubscribe(); if (recording) StopRecording(); }
 
@@ -102,8 +100,6 @@ public class RunDataRecorder : MonoBehaviour
             scheduler.OnJolt.RemoveListener(OnJolt);
         }
     }
-
-    // ---- public control ----
 
     public void StartRecording(string runName, IDictionary<string, string> meta = null)
     {
@@ -152,8 +148,6 @@ public class RunDataRecorder : MonoBehaviour
 
     [ContextMenu("Start recording (manual)")]
     private void StartManual() => StartRecording("manual");
-
-    // ---- event handlers ----
 
     private void OnPosition(float travel) => _latestTravel = travel;
     private void OnDamping(float c) => _latestC = c;
@@ -220,8 +214,6 @@ public class RunDataRecorder : MonoBehaviour
         }
         return best;
     }
-
-    // ---- writing ----
 
     private void WriteMeta(StreamWriter w)
     {

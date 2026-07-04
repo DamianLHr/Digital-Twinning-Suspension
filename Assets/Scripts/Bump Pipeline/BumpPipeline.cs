@@ -89,8 +89,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
     public float LastBestC => lastBestC;
     public float LastPredictiveSlackMs => lastPredictiveSlackMs;
 
-    // ---- visualization events ---------------------------------------
-
     public struct BumpSnapshot
     {
         public NativeArray<float> Heights;     // valid until next bump
@@ -116,8 +114,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
 
     public BumpEvent OnBumpCaptured = new BumpEvent();
     public SolveEvent OnSolveCompleted = new SolveEvent();
-
-    // ---- internal state ----------------------------------------------
 
     private struct Sample { public float Pos; public float Height; }
     private Sample[] _ring;
@@ -145,8 +141,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
         public float ObservedBeltPos;   // leading-edge belt position, captured at BeginBump
     }
     private DampingSearchInFlight _inFlight;
-
-    // ---- lifecycle ---------------------------------------------------
 
     private void OnEnable()
     {
@@ -195,8 +189,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
         results.Dispose();
         dummyRoad.Dispose();
     }
-
-    // ---- ToF stream handler ------------------------------------------
 
     private void OnDistance(float distance)
     {
@@ -266,7 +258,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
         bumpsSeen++;
         float bumpLength = _profile[contentLen - 1].Pos - _leadingEdgePos;
 
-        // -- snapshot for visualization --
         if (_snapHeights.IsCreated) _snapHeights.Dispose();
         _snapHeights = new NativeArray<float>(contentLen, Allocator.Persistent);
         for (int i = 0; i < contentLen; i++) _snapHeights[i] = _profile[i].Height;
@@ -279,8 +270,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
 
         ScheduleSolve(contentLen, bumpLength);
     }
-
-    // ---- solver dispatch (async) -------------------------------------
 
     private void ScheduleSolve(int contentLen, float bumpLengthMeters)
     {
@@ -358,8 +347,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
         for (int i = 0; i < _inFlight.Results.Length; i++)
         {
             var r = _inFlight.Results[i];
-            // Comfort cost: peak acceleration plus a weighted RMS term (no jerk term —
-            // a positive jerk reward would make an active damper increase jerk).
             float cost = r.peakAccel + dampingRmsWeight * r.rmsAccel;
             if (cost < bestCost) { bestCost = cost; bestPeak = r.peakAccel; bestRms = r.rmsAccel; bestIdx = i; }
             if (r.peakAccel < peakMin) peakMin = r.peakAccel;
@@ -374,7 +361,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
         float distLeft = sensorLead - _inFlight.BumpLengthMeters;
         lastPredictiveSlackMs = (distLeft / terrainSpeed) * 1000f - lastSolveMs;
 
-        // -- snapshot for visualization --
         if (_snapPeaks.IsCreated) _snapPeaks.Dispose();
         _snapPeaks = new NativeArray<float>(_inFlight.Results.Length, Allocator.Persistent);
         for (int i = 0; i < _inFlight.Results.Length; i++)

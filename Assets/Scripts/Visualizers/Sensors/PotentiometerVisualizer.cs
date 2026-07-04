@@ -65,11 +65,7 @@ public class PotentiometerVisualizer : MonoBehaviour, IVisualizerPanel, IModeRec
     private Vector2 _managedTopLeft;
     private GUIStyle _label;
 
-    // ---- mode (pushed by ModeManager) ----------------------------------
-
     public void OnModeChanged(TwinMode mode) => _mode = mode;
-
-    // ---- lifecycle -----------------------------------------------------
 
     private void OnEnable()
     {
@@ -104,8 +100,6 @@ public class PotentiometerVisualizer : MonoBehaviour, IVisualizerPanel, IModeRec
         float span = Mathf.Abs(inputMax - inputMin) < 1e-6f ? 1f : (inputMax - inputMin);
         float t = Mathf.Clamp01((_reading - inputMin) / span);
 
-        // Move the nub along its slide — local Y ONLY, preserving the X/Z it was
-        // placed with. The captured start Y is the low end; t scales the travel up.
         if (nub != null)
         {
             if (!_nubStartCaptured)
@@ -126,8 +120,6 @@ public class PotentiometerVisualizer : MonoBehaviour, IVisualizerPanel, IModeRec
             modelTarget.position = p;
         }
     }
-
-    // ---- IVisualizerPanel (small readout only) -------------------------
 
     public string DisplayName => string.IsNullOrEmpty(title) ? GetType().Name : title;
     public string Group => "Sensors";

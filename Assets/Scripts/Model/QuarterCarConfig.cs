@@ -22,10 +22,6 @@ public class QuarterCarConfig : MonoBehaviour
     [Tooltip("Unsprung mass — the wheel/axle Rigidbody at the bottom.")]
     [Min(0.001f)] public float unsprungMassKg = 0.5f;
 
-    // Maps to the suspension ConfigurableJoint's yDrive:
-    //   spring constant k      → JointDrive.positionSpring
-    //   damping coefficient c  → JointDrive.positionDamper
-    //   max actuator force     → JointDrive.maximumForce
     [Header("Spring / damper (k = N/m, c = N·s/m)")]
     [Tooltip("Spring constant k (N/m) → yDrive.positionSpring. Distinct from the damping " +
              "coefficient c below. Measured ≈ 27 for this suspension.")]
@@ -57,8 +53,6 @@ public class QuarterCarConfig : MonoBehaviour
     [SerializeField] private float criticalDamping;
     [SerializeField] private float dampingRatioInitial;
 
-    // ----------------------------------------------------------------
-
     private void Awake()          => Apply();
     private void OnValidate()     => Apply();   // applies whenever a value changes in the Inspector
 
@@ -81,8 +75,6 @@ public class QuarterCarConfig : MonoBehaviour
             var rb = unsprung.GetComponent<Rigidbody>();
             if (rb != null) rb.mass = unsprungMassKg;
 
-            // Tyre spring/damper: single source of truth. Applies live if the
-            // joint exists, otherwise the values are used when it's created.
             unsprung.SetTyreDrive(tyreStiffness, tyreDamping);
         }
 

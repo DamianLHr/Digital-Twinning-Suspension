@@ -59,8 +59,6 @@ public abstract class ActuatorVisualizerBase : MonoBehaviour, IVisualizerPanel
         _hasManagedRect = false;
     }
 
-    // ---- IVisualizerPanel ----------------------------------------------
-
     public string DisplayName => string.IsNullOrEmpty(title) ? GetType().Name : title;
     public virtual string Group => "Actuators";
     public bool Show { get => show; set => show = value; }

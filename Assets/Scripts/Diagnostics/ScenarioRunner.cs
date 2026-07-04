@@ -36,8 +36,6 @@ public class ScenarioRunner : MonoBehaviour
 
     public bool Running => running;
 
-    // Public configuration surface so a UI (SimulationStartupMenu) can drive the scenario
-    // without reflection. Backing fields stay [SerializeField] so the Inspector still works.
     public DampingPolicySelector.Policy Policy { get => policy; set => policy = value; }
     public float ConstantC      { get => constantC;     set => constantC = value; }
     public float BeltSpeed      { get => beltSpeed;     set => beltSpeed = value; }

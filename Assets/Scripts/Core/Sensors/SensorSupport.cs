@@ -5,10 +5,6 @@ using UnityEngine.Events;
 /// <summary>Which implementation feeds a given output (used by the binding/UI layer).</summary>
 public enum SensorSource { Digital, Real }
 
-// ---- Concrete UnityEvent subclasses ------------------------------------
-// Generic UnityEvent<T> only serializes (and shows in the Inspector) when
-// wrapped in a concrete, [Serializable] subclass. These are the typed
-// channels every *Output broadcasts on.
 [Serializable] public class FloatEvent      : UnityEvent<float>   {}
 [Serializable] public class FloatArrayEvent : UnityEvent<float[]> {}
 [Serializable] public class Vector3Event    : UnityEvent<Vector3> {}

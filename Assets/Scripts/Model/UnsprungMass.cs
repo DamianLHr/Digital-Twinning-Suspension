@@ -65,8 +65,6 @@ public class UnsprungMass : MonoBehaviour, IModeReceiver
     private void CreateContactAnchor()
     {
         var go = new GameObject(name + " (tyre contact)");
-        // Deliberately unparented: it must not inherit the drum's spin. It only
-        // tracks the road height under the wheel.
         _contact = go.AddComponent<Rigidbody>();
         _contact.isKinematic = true;
         _contact.useGravity = false;
@@ -82,8 +80,6 @@ public class UnsprungMass : MonoBehaviour, IModeReceiver
         _joint.anchor = Vector3.zero;
         _joint.connectedAnchor = new Vector3(0f, wheelRadius, 0f);   // wheel rests a tyre-radius above the contact
 
-        // Wheel rotation is frozen, so the joint's local frame == world; the
-        // Y drive is therefore a vertical spring.
         _joint.axis = Vector3.right;
         _joint.secondaryAxis = Vector3.up;
 
@@ -164,8 +160,6 @@ public class UnsprungMass : MonoBehaviour, IModeReceiver
 
     public Vector3 GetPosition() => rb.position;
 
-    // Twinning: the real rig is the source of truth and the model mirrors it from
-    // sensor data, so make the body kinematic to stop physics fighting that.
     public void OnModeChanged(TwinMode mode)
     {
         if (rb == null) rb = GetComponent<Rigidbody>();

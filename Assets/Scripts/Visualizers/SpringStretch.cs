@@ -66,8 +66,6 @@ public class SpringStretch : MonoBehaviour
         if (dist < 1e-5f) return;
         Vector3 dir = delta / dist;
 
-        // Orient: map the chosen local axis onto A→B (the free spin around the axis
-        // doesn't matter for a radially-symmetric spring).
         transform.rotation = Quaternion.FromToRotation(AxisVector(lengthAxis), dir);
 
         // Position: centre on the midpoint, or sit at the A end.

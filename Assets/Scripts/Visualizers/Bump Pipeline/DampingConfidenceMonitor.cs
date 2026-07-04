@@ -44,7 +44,6 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
     [SerializeField] private bool floatInWorld = false;
     [SerializeField] private Transform worldAnchorOverride;
 
-    // ---- captured event state (persist until the next event) ----
     private int   _lastBumpSamples = -1;
     private float _lastSlackMs;
     private bool  _haveSolve;
@@ -59,8 +58,6 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
     private bool _hasManagedRect;
     private Vector2 _managedTopLeft;
     private const float Pad = 6f, LineH = 16f;
-
-    // ---- lifecycle ----
 
     private void OnEnable()
     {
@@ -101,8 +98,6 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
         _speedDeltaFrac = Mathf.Abs(a.SpeedAtApply - a.SpeedAtSolve) / v;
     }
 
-    // ---- evaluation ----
-
     private void Update() => Evaluate();
 
     private void Evaluate()
@@ -137,8 +132,6 @@ public class DampingConfidenceMonitor : MonoBehaviour, IVisualizerPanel
     }
 
     private void Add(Severity sev, string msg) => _diags.Add(new Diagnostic { Sev = sev, Message = msg });
-
-    // ---- IVisualizerPanel ----
 
     public string DisplayName => string.IsNullOrEmpty(title) ? GetType().Name : title;
     public string Group => "Control";

@@ -105,9 +105,6 @@ public class ToFSensorOutputVisualizer : SensorOutputVisualizerBase
         _beam.textureMode = LineTextureMode.Stretch;
         _beam.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         _beam.receiveShadows = false;
-        // Sprites/Default is an always-included built-in shader and honours the
-        // LineRenderer's vertex colors. If the beam is invisible in a build, add
-        // it under Project Settings > Graphics > Always Included Shaders.
         _beam.material = new Material(Shader.Find("Sprites/Default"));
     }
 

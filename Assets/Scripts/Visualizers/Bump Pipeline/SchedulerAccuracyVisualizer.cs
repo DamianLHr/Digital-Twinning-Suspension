@@ -57,7 +57,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     [Tooltip("Fallback match tolerance (m) used when the wheel offset isn't known yet.")]
     [SerializeField] private float fallbackMatchTol = 0.05f;
 
-    // ---- per-bump record ----
     private class Rec
     {
         public float Observed, Target, C, SpeedSolve;
@@ -67,7 +66,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     private readonly List<Rec> _recs = new List<Rec>();
     private const int MaxRecs = 32;
 
-    // ---- world tags (parented to the terrainWheel) ----
     private class Tag { public GameObject Go; public Rec Rec; }
     private readonly Queue<Tag> _tags = new Queue<Tag>();
 
@@ -75,10 +73,7 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     private bool _hasManagedRect;
     private Vector2 _managedTopLeft;
 
-    // ---- layout constants ----
     private const float Pad = 6f, HeaderH = 18f, LineH = 16f;
-
-    // ---- lifecycle ----
 
     private void OnEnable()
     {
@@ -104,8 +99,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
         _hasManagedRect = false;
         ClearTags();
     }
-
-    // ---- event handlers ----
 
     private void OnScheduled(DampingCommandScheduler.ScheduledInfo s)
     {
@@ -152,8 +145,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
         return best;
     }
 
-    // ---- world tags ----
-
     private void SpawnTag(Rec r)
     {
         if (!showTags || terrainWheel == null || tofEmitter == null) return;
@@ -199,8 +190,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
         }
     }
 
-    // ---- IVisualizerPanel ----
-
     public string DisplayName => string.IsNullOrEmpty(title) ? GetType().Name : title;
     public string Group => "Control";
     public bool Show { get => show; set => show = value; }
@@ -210,8 +199,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
         300f, Pad * 2f + HeaderH + LineH * (Mathf.Max(1, tableRows) + 1));
 
     public void ApplyScreenRect(Vector2 topLeft) { _managedTopLeft = topLeft; _hasManagedRect = true; }
-
-    // ---- rendering ----
 
     private void OnGUI()
     {

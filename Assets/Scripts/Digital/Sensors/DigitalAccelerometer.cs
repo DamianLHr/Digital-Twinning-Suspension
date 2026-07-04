@@ -31,8 +31,6 @@ public class DigitalAccelerometer : DigitalSensorBase
 
     protected override void FixedUpdate()
     {
-        // Differentiate velocity every physics tick for an accurate reading, then
-        // subtract gravity so at rest it reads +9.81 up (proper acceleration).
         if (target != null)
         {
             Vector3 v = target.linearVelocity;

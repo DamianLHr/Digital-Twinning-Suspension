@@ -25,8 +25,6 @@ public class TerrainWheel : MonoBehaviour
     {
         _traveled += linearSpeed * Time.fixedDeltaTime;
 
-        // Optional visual: rotate the drum so child bump geometry passes the
-        // contact point. Comment out if your rig drives rotation elsewhere.
         if (diameter > 0f)
         {
             float angularDeg = (linearSpeed / (Mathf.PI * diameter)) * 360f * Time.fixedDeltaTime;

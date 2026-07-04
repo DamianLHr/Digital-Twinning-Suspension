@@ -57,8 +57,6 @@ public abstract class SensorOutputVisualizerBase : MonoBehaviour, IVisualizerPan
     private bool _hasManagedRect;
     private Vector2 _managedTopLeft;
 
-    // ---- subclass hooks ------------------------------------------------
-
     /// <summary>Resolve the output reference and add the event listener.</summary>
     protected abstract void Subscribe();
 
@@ -76,8 +74,6 @@ public abstract class SensorOutputVisualizerBase : MonoBehaviour, IVisualizerPan
         if (_count < _ring.Length) _count++;
         _dirty = true;
     }
-
-    // ---- lifecycle -----------------------------------------------------
 
     protected virtual void OnEnable()
     {
@@ -98,8 +94,6 @@ public abstract class SensorOutputVisualizerBase : MonoBehaviour, IVisualizerPan
         if (toggleKey != KeyCode.None && Input.GetKeyDown(toggleKey)) show = !show;
         if (_dirty) { Repaint(); _dirty = false; }
     }
-
-    // ---- rendering -----------------------------------------------------
 
     private void EnsureBuffers()
     {
@@ -164,8 +158,6 @@ public abstract class SensorOutputVisualizerBase : MonoBehaviour, IVisualizerPan
         GUI.Label(new Rect(x + pad, y + pad + headerH + plotHeight, plotWidth, footerH),
                   footer, _label);
     }
-
-    // ---- IVisualizerPanel ----------------------------------------------
 
     public string DisplayName => string.IsNullOrEmpty(title) ? GetType().Name : title;
     public virtual string Group => "Sensors";

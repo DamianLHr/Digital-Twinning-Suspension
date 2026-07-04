@@ -52,8 +52,6 @@ public sealed class RoadProfile : IDisposable
         };
     }
 
-    // Second-order central differences interior, first-order at the ends
-    // (identical to numpy.gradient default behaviour on a uniform grid).
     private static float[] Gradient(float[] f, float h)
     {
         int n = f.Length;

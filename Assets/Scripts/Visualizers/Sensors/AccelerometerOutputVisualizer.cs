@@ -30,8 +30,6 @@ public class AccelerometerOutputVisualizer : SensorOutputVisualizerBase
 
     private void OnAcceleration(Vector3 a)
     {
-        // Vertical proper acceleration with gravity removed → fluctuates around 0 (in g),
-        // not pinned at ~1 g. (Vertical is what the bumps drive.)
         Push(a.y - gravityBaseline);
     }
 }

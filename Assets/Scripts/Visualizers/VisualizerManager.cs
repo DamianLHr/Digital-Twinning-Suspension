@@ -45,8 +45,6 @@ public class VisualizerManager : MonoBehaviour
     [SerializeField] private bool drawLeaderLines = true;
     [SerializeField] private Color leaderColor = new Color(1f, 1f, 1f, 0.5f);
 
-    // Per-panel desired visibility; the menu edits this and it survives panels
-    // appearing / disappearing.
     private readonly Dictionary<IVisualizerPanel, bool> _selected =
         new Dictionary<IVisualizerPanel, bool>();
 
@@ -62,8 +60,6 @@ public class VisualizerManager : MonoBehaviour
     private GUIStyle _toggle;
     private static Texture2D _lineTex;
 
-    // ---- lifecycle -----------------------------------------------------
-
     private void OnEnable()
     {
         if (viewCamera == null) viewCamera = Camera.main;
@@ -74,15 +70,11 @@ public class VisualizerManager : MonoBehaviour
         if (menuKey != KeyCode.None && Input.GetKeyDown(menuKey)) menuOpen = !menuOpen;
     }
 
-    // Layout runs once per frame, after every panel's Update, so the positions
-    // are fresh by the time OnGUI draws.
     private void LateUpdate()
     {
         if (viewCamera == null) viewCamera = Camera.main;
         Layout();
     }
-
-    // ---- layout --------------------------------------------------------
 
     private void Layout()
     {
@@ -94,8 +86,6 @@ public class VisualizerManager : MonoBehaviour
         var anchors = new List<Vector2>();
         var anchored = new List<bool>();
 
-        // Fixed-panel stack (anchorless or non-floating panels) starts to the
-        // right of the menu.
         float fixedX = menuAnchor.x + menuWidth + 24f;
         float fixedY = menuAnchor.y;
         int anchoredCount = 0;
@@ -125,8 +115,6 @@ public class VisualizerManager : MonoBehaviour
 
                 anchorPt = new Vector2(sp.x, Screen.height - sp.y);   // LIVE point (leader line)
 
-                // Stabilized placement anchor: only follows the live point when it
-                // drifts past the deadzone, so a bobbing object doesn't shake the panel.
                 if (!_placeAnchor.TryGetValue(p, out Vector2 placeAt) ||
                     Vector2.Distance(placeAt, anchorPt) > placementDeadzone)
                 {
@@ -134,8 +122,6 @@ public class VisualizerManager : MonoBehaviour
                     _placeAnchor[p] = placeAt;
                 }
 
-                // Alternate sides so panels don't all pile up on one side of the
-                // model: even ones go right of the anchor, odd ones go left.
                 bool right = !alternateSides || (anchoredCount % 2 == 1);
                 float x = right ? placeAt.x + anchorOffset.x
                                 : placeAt.x - anchorOffset.x - size.x;
@@ -167,8 +153,6 @@ public class VisualizerManager : MonoBehaviour
         }
     }
 
-    // Iterative pairwise push-apart. Resolves along the axis of least
-    // penetration so panels slide the shortest distance to clear each other.
     private void Separate(List<Rect> rects)
     {
         float m = panelMargin;
@@ -204,8 +188,6 @@ public class VisualizerManager : MonoBehaviour
         }
     }
 
-    // ---- IMGUI ---------------------------------------------------------
-
     private void OnGUI()
     {
         EnsureStyles();
@@ -232,8 +214,6 @@ public class VisualizerManager : MonoBehaviour
     private readonly Dictionary<string, List<IVisualizerPanel>> _groups =
         new Dictionary<string, List<IVisualizerPanel>>();
 
-    // Bucket the live panels by their Group, ordered (preferred first, rest alphabetical).
-    // Lists are reused frame-to-frame to avoid per-frame allocation.
     private void RebuildGroups(IReadOnlyList<IVisualizerPanel> panels)
     {
         _groupNames.Clear();

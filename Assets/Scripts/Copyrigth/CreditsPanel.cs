@@ -69,8 +69,6 @@ public class CreditsPanel : MonoBehaviour
         if (!visible)
             return;
 
-        // Anchor the window to the top-right the first time it opens
-        // (afterwards the user can drag it freely).
         if (!positioned)
         {
             windowRect.x = Screen.width - WindowWidth - Margin;

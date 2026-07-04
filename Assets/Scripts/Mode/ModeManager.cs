@@ -41,8 +41,6 @@ public class ModeManager : MonoBehaviour
         bool simulating = mode == TwinMode.Simulating;
         digitalDevices = realDevices = modeReceivers = 0;
 
-        // Include inactive objects so a device parked disabled in the scene is
-        // still brought to the correct state for the mode.
         var all = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include);
         for (int i = 0; i < all.Length; i++)
         {
