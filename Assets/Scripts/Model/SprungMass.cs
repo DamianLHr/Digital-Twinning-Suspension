@@ -16,7 +16,7 @@ public class SprungMass : MonoBehaviour, IModeReceiver
     [SerializeField] private Rigidbody rb;
 
     private Vector3 _lastVelocity;
-    private Vector3 _acceleration;   // proper acceleration (m/s^2), see note below
+    private Vector3 _acceleration;   // proper acceleration (m/s^2)
 
     private void Reset() => rb = GetComponent<Rigidbody>();
 
@@ -32,9 +32,6 @@ public class SprungMass : MonoBehaviour, IModeReceiver
         Vector3 v = rb.linearVelocity;       // Unity 6: rb.linearVelocity
         Vector3 kinematic = (v - _lastVelocity) / Time.fixedDeltaTime;
 
-        // A real accelerometer measures specific force (a - g), so at rest it
-        // reads +9.81 m/s^2 upward. We subtract gravity so the digital signal
-        // matches the MPU-6050 and the two are interchangeable on the shared output.
         _acceleration = kinematic - Physics.gravity;
         _lastVelocity = v;
     }

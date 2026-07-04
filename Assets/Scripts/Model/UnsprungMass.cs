@@ -145,10 +145,6 @@ public class UnsprungMass : MonoBehaviour, IModeReceiver
         if (found) { _lastRoadY = best.point.y; _hasRoad = true; }
         else if (!_hasRoad) return;     // never seen the road yet
 
-        // Park the non-spinning anchor on the road surface under the wheel; the
-        // joint's connectedAnchor (above) floats the wheel one tyre-radius above
-        // it. MovePosition gives the anchor the road's velocity, so the joint
-        // damper sees the relative motion automatically.
         Vector3 p = _contact.position;
         p.x = transform.position.x;
         p.z = transform.position.z;

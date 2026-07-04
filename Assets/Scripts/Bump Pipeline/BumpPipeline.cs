@@ -33,8 +33,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
     [SerializeField] private float nominalStandoffTwin = 0.15f;
     [SerializeField] private float sensorLead = 0.10f;
 
-    // Active standoff for the current mode. ModeManager pushes the mode via OnModeChanged;
-    // defaults to the sim value (the default mode) so any reading before that is still correct.
     private float _nominalStandoff = 0.055f;
     private float _baseline = 0.055f;     // adaptive flat-distance estimate (drum-wobble rejection)
     private float _lastSampleTime;
@@ -169,18 +167,12 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
         DisposeSnapshots();
     }
 
-    // ModeManager pushes the active mode. The flat-belt ToF standoff differs between the
-    // Unity scene (sim) and the physical rig (twin), so pick the matching baseline.
     public void OnModeChanged(TwinMode mode)
     {
         _nominalStandoff = mode == TwinMode.Twinning ? nominalStandoffTwin : nominalStandoffSim;
         _baseline = _nominalStandoff;   // reseed the wobble baseline for the new mode
     }
 
-    // Burst compiles a job on its first execution, which makes the FIRST real
-    // solve dramatically slower than steady state. That anomalous latency used to
-    // poison the scheduler's wheel-offset calibration. Run a throwaway solve here
-    // so Burst is warm before the first bump is ever captured.
     private void Start() => WarmUpSolver();
 
     private void WarmUpSolver()
@@ -208,8 +200,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
 
     private void OnDistance(float distance)
     {
-        // Reference for "flat". With adaptiveBaseline, track the slow flat-belt distance (updated
-        // ONLY while Idle, so it can never chase a bump) to reject drum wobble; else fixed standoff.
         float reference = _nominalStandoff;
         if (adaptiveBaseline && distance >= 0f)
         {
@@ -349,11 +339,6 @@ public class BumpPipeline : MonoBehaviour, IModeReceiver
             Road = road,
             StartTime = Time.realtimeSinceStartup,
             BumpLengthMeters = bumpLengthMeters,
-            // LEADING-edge belt position. The accelerometer jolt fires when the bump's
-            // leading edge contacts the wheel, so referencing the schedule to the leading
-            // edge makes target = the next contact (error ≈ 0). Using the trailing edge
-            // instead landed target ~one bump-length late. Captured at BeginBump → still
-            // latency-free (no async solve-completion drift).
             ObservedBeltPos = _leadingEdgePos
         };
     }

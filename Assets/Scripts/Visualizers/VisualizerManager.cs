@@ -50,9 +50,7 @@ public class VisualizerManager : MonoBehaviour
     private readonly Dictionary<IVisualizerPanel, bool> _selected =
         new Dictionary<IVisualizerPanel, bool>();
 
-    // Stabilized placement anchors (screen px). A panel's placement only follows
-    // its live world-projected anchor when it drifts past placementDeadzone, so
-    // small vertical bob doesn't shake the panel — only the leader line moves.
+    // Stabilized placement anchors (screen px).
     private readonly Dictionary<IVisualizerPanel, Vector2> _placeAnchor =
         new Dictionary<IVisualizerPanel, Vector2>();
 

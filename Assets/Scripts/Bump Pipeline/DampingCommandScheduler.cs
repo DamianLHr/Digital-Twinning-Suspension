@@ -223,10 +223,6 @@ public class DampingCommandScheduler : MonoBehaviour
         if (State != CalibState.WaitingForJolt) return;   // calibration only in the jolt-based fallback
         float candidate = joltAt - _firstObservationPos;
 
-        // Validate against drum geometry. On a periodic drum, any whole extra
-        // revolution is the same bump phase and still schedules correctly, so we
-        // validate the phase modulo one revolution against the expected
-        // (360 − angle) degrees. A startup artifact or mis-paired jolt is rejected.
         float circ = Circumference();
         float expectedDeg = 360f - sensorAngleBehindDeg;
         float phaseDeg = 0f;
@@ -273,11 +269,6 @@ public class DampingCommandScheduler : MonoBehaviour
 
         float now = terrainWheel.TraveledDistance;
 
-        // Apply commands in arrival order, each as EARLY as allowed: as soon as the
-        // previous bump has cleared the wheel (so we never change C mid-bump) — which
-        // gives the real damping motor the whole inter-bump gap to slew. `TargetPos`
-        // stays the expected ARRIVAL (the error/accuracy reference); only the moment
-        // we command the damper moves earlier.
         while (_pending.Count > 0)
         {
             PendingCommand cmd = _pending[0];
@@ -301,11 +292,6 @@ public class DampingCommandScheduler : MonoBehaviour
                 SpeedAtApply = terrainWheel.LinearSpeed
             });
 
-            // TargetPos is the LEADING edge (first contact); the bump occupies BumpLength of
-            // belt past it, so it clears at the trailing edge + margin. (Previously this added
-            // only the margin to a trailing-edge TargetPos; after the leading-edge fix that put
-            // the clear point mid-bump, so the next C was applied while this bump was still under
-            // the wheel.)
             _prevClearPos = cmd.TargetPos + cmd.BumpLength + bumpClearanceMeters;
             _pending.RemoveAt(0);
             queueDepth = _pending.Count;

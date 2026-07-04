@@ -58,12 +58,6 @@ public class ToFSensorOutputVisualizer : SensorOutputVisualizerBase
 
     private void OnDistance(float distance)
     {
-        // The trace previously plotted raw distance, so a raised bump (smaller
-        // distance) dipped downward and read like a pothole. Plot height instead:
-        // height = standoff - distance, matching BumpPipeline's own conversion, so
-        // a raised bump reads positive / upward. (The plot auto-ranges Y, so it is
-        // the sign flip — not the offset — that corrects the direction.)
-        // No-target (-1) -> flat (0) to keep the trace continuous.
         float standoff = pipeline != null ? pipeline.NominalStandoff : fallbackStandoff;
         float height = distance < 0f ? 0f : standoff - distance;
         Push(height);
@@ -83,10 +77,6 @@ public class ToFSensorOutputVisualizer : SensorOutputVisualizerBase
         Vector3 start = o.position;
         Vector3 dir = -o.up;                  // matches DigitalToFSensor's aim
 
-        // Raycast live every frame so the beam always lands on the *current*
-        // surface. (The plotted distance still comes from the sensor's sampled
-        // readings; tying the beam length to those left it stale between samples,
-        // so it floated above / sank under the moving belt.)
         bool hit = Physics.Raycast(start, dir, out RaycastHit info, beamMaxLength,
                                    beamMask, QueryTriggerInteraction.Ignore);
         Vector3 end = hit ? info.point : start + dir * beamMaxLength;

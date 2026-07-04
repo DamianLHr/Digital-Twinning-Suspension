@@ -121,9 +121,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
 
     // --------- event handlers (filled in from BumpPipeline) ---------
 
-    // Called when a bump's accumulation ends. We get a frozen snapshot of the
-    // captured (pos, height) series, which includes flat pre-roll and a flat
-    // tail. We crop that down to just the active bump for display.
     private void OnBumpCaptured(BumpPipeline.BumpSnapshot snap)
     {
         EnsureTextures();
@@ -184,7 +181,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
         _hasBump = true;
     }
 
-    // Called when the damping search finishes. We get the full cost array.
     private void OnSolveCompleted(BumpPipeline.SolveSnapshot snap)
     {
         EnsureTextures();
@@ -346,13 +342,6 @@ public class BumpPipelineVisualizer : MonoBehaviour, IVisualizerPanel
         PlotSeries(tex, s, count, vMin, vMax, col, despikeWindow, smoothWindow);
     }
 
-    // Plot a 1-D series across the texture. The raw capture is often denser than
-    // the plot is wide (especially at 200 Hz), and nearest-neighbour picking then
-    // aliases single-sample quantization steps into a jagged trace. So we
-    // optionally despike (median) and smooth (moving average) the displayed copy,
-    // then resample to the plot width by averaging the samples that fall in each
-    // column (downsampling) or interpolating between them (upsampling).
-    // This is display-only; the solver always receives the raw profile.
     private void PlotSeries(Texture2D tex, float[] src, int count,
                             float vMin, float vMax, Color col,
                             int despikeWindow, int smoothWindow)

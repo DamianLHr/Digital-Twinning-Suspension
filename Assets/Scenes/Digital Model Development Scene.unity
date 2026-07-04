@@ -2762,7 +2762,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4442631853580985652, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: logRawToCsv
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4442631853580985652, guid: a74da99dc2e4b784a834748c0530a4f1, type: 3}
       propertyPath: packetSource

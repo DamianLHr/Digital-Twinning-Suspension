@@ -189,10 +189,6 @@ public class PicoSerialTransport : MonoBehaviour, ISensorPacketSource, IActuator
             return;
         }
 
-        // Skip frames with physically-impossible values: a brief framing mis-sync
-        // (dropped byte / false header in payload) parses garbage — negative distance,
-        // out-of-range pots, NaN/huge accel. Dropping it lets subscribers hold last good;
-        // the rolling parser re-syncs on the next genuine header.
         if (rejectImplausibleFrames && IsImplausible(d))
         {
             badFrames++;

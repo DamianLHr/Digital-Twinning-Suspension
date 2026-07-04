@@ -126,10 +126,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
 
     private void OnJolt(float joltPos)
     {
-        // Confirm a command only with a jolt that lands within a tolerance window of
-        // its expected arrival (Target). Without this gate the nearest-Target matcher
-        // pairs each command with a coincident jolt from ANOTHER bump ~one wheelOffset
-        // away (a downstream-sensor artifact), reporting a bogus error ≈ −offset.
         float offset = scheduler != null ? scheduler.WheelOffset : 0f;
         float tol = offset > 1e-4f ? joltMatchFraction * offset : fallbackMatchTol;
 
@@ -162,10 +158,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
     {
         if (!showTags || terrainWheel == null || tofEmitter == null) return;
 
-        // Dedup by the bump's observed PHASE on the drum (observedPos modulo one
-        // revolution). The same physical bump returns to the ToF at the same phase
-        // every revolution, so refresh that tag's C instead of spawning a duplicate.
-        // Phase is in belt-travel metres → independent of the drum transform's scale.
         float circ = Mathf.PI * terrainWheel.Diameter;
         float phase = circ > 1e-4f ? Mathf.Repeat(r.Observed, circ) : r.Observed;
         foreach (var t in _tags)
@@ -177,10 +169,6 @@ public class SchedulerAccuracyVisualizer : MonoBehaviour, IVisualizerPanel
             if (d <= tagMergeDistance) { t.Rec = r; return; }
         }
 
-        // Place the tag where the bump ACTUALLY is now, not at the live ToF. The bump's
-        // leading edge passed the ToF a moment ago (capture + solve travel), so the drum
-        // has since rotated by (now − observed); rotate the ToF point forward by that
-        // angle around the drum axis so the tag lands on the bump instead of behind it.
         Vector3 spawnPos = tofEmitter.position;
         if (circ > 1e-4f)
         {
