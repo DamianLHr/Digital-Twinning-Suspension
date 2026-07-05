@@ -4,12 +4,28 @@ Repository for the digital twin created in Unity for the Multidisciplinary CBL p
 ## Unity Version Used
 6000.4.6f1
 
+## Presentation & demo
+
+The full project write-up is in the **[final presentation slides (PPTX)](https://github.com/DamianLHr/Digital-Twinning-Suspension/releases/latest)** — download from the latest release.
+
+### Demo video
+
+The predictive suspension running (clip taken from the final presentation):
+
+<!-- INLINE PLAYER: paste the GitHub user-attachments URL for the demo video on its own line below.
+     To get it: drag-drop the video (media1.mov) into any GitHub issue/PR comment box, OR the release
+     description editor. GitHub uploads it and replaces it with a URL like
+     https://github.com/user-attachments/assets/xxxxxxxx — that URL renders as an inline player.
+     NOTE: a releases/download/... asset URL is only a download link and will NOT embed inline. -->
+
+▶️ **[Watch the demo video](https://github.com/DamianLHr/Digital-Twinning-Suspension/releases/latest)** (from the latest release). *An inline player will replace this link once the upload URL is added.*
+
 ## Running the simulation
 
 There are two ways to run it: the prebuilt Windows build (no Unity install needed) or straight from the Unity Editor.
 
 ### Option A — Prebuilt Windows build (easiest)
-1. Go to the [**Releases** page](https://github.com/DamianLHr/Digital-Twinning-Suspension/releases) and download the build archive from release **[V1](https://github.com/DamianLHr/Digital-Twinning-Suspension/releases/tag/V1)** (`Build.zip`).
+1. Go to the [**latest release**](https://github.com/DamianLHr/Digital-Twinning-Suspension/releases/latest) and download the build archive (`Build.zip`).
 2. Unzip it anywhere.
 3. Run `Digital Twinnning Suspension.exe`.
    - Windows SmartScreen may warn about an unsigned app — click **More info → Run anyway**.
