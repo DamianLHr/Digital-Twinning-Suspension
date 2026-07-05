@@ -12,13 +12,7 @@ The full project write-up is in the **[final presentation slides (PPTX)](https:/
 
 The predictive suspension running (clip taken from the final presentation):
 
-<!-- INLINE PLAYER: paste the GitHub user-attachments URL for the demo video on its own line below.
-     To get it: drag-drop the video (media1.mov) into any GitHub issue/PR comment box, OR the release
-     description editor. GitHub uploads it and replaces it with a URL like
-     https://github.com/user-attachments/assets/xxxxxxxx — that URL renders as an inline player.
-     NOTE: a releases/download/... asset URL is only a download link and will NOT embed inline. -->
-
-▶️ **[Watch the demo video](https://github.com/DamianLHr/Digital-Twinning-Suspension/releases/latest)** (from the latest release). *An inline player will replace this link once the upload URL is added.*
+https://github.com/user-attachments/assets/ac926a69-1183-4891-a200-0e993b196c1e
 
 ## Running the simulation
 
